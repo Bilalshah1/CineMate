@@ -37,7 +37,7 @@ function Header() {
 
       {/* Mobile Menu Overlay */}
       {isMenuOpen && (
-        <div className='fixed inset-0 bg-gray-200 bg-opacity-50 z-10 md:hidden' onClick={toggleMenu}>
+        <div className='fixed inset-0 bg-gradient-to-b from-red-700 to-blue-950 bg-opacity-30 z-10 md:hidden' onClick={toggleMenu}>
         </div>
       )}
 
@@ -49,9 +49,14 @@ function Header() {
         aria-hidden={!isMenuOpen}
       >
         <div className='flex flex-col items-start p-6 space-y-8 mt-16'>
-          <button className='self-end p-2 focus:outline-none transform transition-transform duration-200 hover:scale-120' onClick={toggleMenu} aria-label="Close menu">
-            ✕
-          </button>
+          <div className='flex items-center justify-between w-full'>
+            <a href="#" className='inline-block' onClick={toggleMenu}>
+            <img className='w-15 h-12 md:w-20 md:h-15' src={bx_camera} alt="Camera Icon" />
+            </a>
+            <button className='p-2 focus:outline-none transform transition-transform duration-200 hover:scale-120' onClick={toggleMenu} aria-label="Close menu">
+              ✕
+            </button>
+          </div>
           <a href="#" className='text-xl transform transition-transform duration-200 hover:scale-105 p-1' onClick={toggleMenu}>
             Features
           </a>
