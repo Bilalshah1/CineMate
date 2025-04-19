@@ -2,8 +2,7 @@ import { div } from 'framer-motion/client';
 import React from 'react';
 import create_room from '../assets/create_room.svg';
 import join_room from '../assets/join_room.svg';
-import johnsnow_got from '../assets/johnsnow_got.jpg';
-import breakingbad from '../assets/breakingbad.jpg';
+import preview from '../assets/mixkit_clapperboard.mp4';
 
 
 function Hero() {
@@ -19,22 +18,21 @@ function Hero() {
           <p className="text-xl font-semibold text-white/90 mt-2 drop-shadow-md">
             Without the need to download anything!
           </p>
-          <button className="flex items-center gap-2 m-2 border-2 border-black shadow-md hover:shadow-xl hover:scale-102 rounded-lg transition-all duration-300 active:scale-105 group w-50">
+          <button className="flex items-center gap-2 m-2 border-2 border-black shadow-md hover:shadow-xl hover:scale-102 rounded-lg transition-all duration-300 active:scale-108 group w-50">
             <img className="w-6 ml-1 h-6" src={create_room} alt="" />
             <p className="text-sm md:text-base flex-1 bg-red-800 group-hover:bg-blue-900 transition-colors duration-300 text-white px-4 py-1 rounded-r-md">
                 Create New Room
             </p>
           </button>
-          <button className="flex items-center gap-2 m-2 border-2 border-black shadow-md hover:shadow-xl hover:scale-102 rounded-lg transition-all duration-300 active:scale-105 group w-50">
+          <button className="flex items-center gap-2 m-2 border-2 border-black shadow-md hover:shadow-xl hover:scale-102 rounded-lg transition-all duration-300 active:scale-108 group w-50">
             <img className="w-6 ml-1 h-6" src={join_room} alt="" />
             <p className="text-sm md:text-base flex-1 bg-blue-900 group-hover:bg-red-800 transition-colors duration-300 text-white px-4 py-1 rounded-r-md">
                 Join Room
             </p>
           </button>
         </div>
-        <div className="flex flex-row flex-wrap gap-2 justify-center md:flex-shrink-0 my-5">
-            <img className="w-32 h-40 min-[423px]:w-45 min-[423px]:h-60 md:w-65 md:h-80 ml-3 rounded-2xl shadow-xl hover:shadow-black transition-all duration-300" src={johnsnow_got} alt=""/>
-            <img className="w-32 h-40 min-[423px]:w-45 min-[423px]:h-60 md:w-65 md:h-80 ml-3 rounded-2xl shadow-xl hover:shadow-black transition-all duration-300" src={breakingbad} alt=""/>
+        <div className="md:flex-shrink-0 mt-10 w-90 md:w-100" style={{ perspective: '1000px' }}>
+          <video src={preview} className='h-50 md:h-60 object-cover rounded-lg transition-all duration-300 shadow-md shadow-blue-500 hover:shadow-lg hover:shadow-blue-700 transform md:rotate-x-[-6deg] md:rotate-y-[-12deg] hover:rotate-x-0 hover:rotate-y-0 md:scale-110 hover:scale-100' controls autoPlay loop muted playsInline></video>
         </div>
       </div>
 

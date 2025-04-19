@@ -21,23 +21,23 @@ function Features() {
         <div className='flex flex-col items-center gap-2 m-2'>
             <img className="md:w-18 md:h-18 w-15 h-15" src={youtube_svg} alt="" />
             <p className='font-semibold md:text-xl'>Youtube</p>
-            <p className='tracking-tight text-sm'>Stream YouTube videos in perfect sync with the crew. From cat clips to epic trailers, watch it all together, no lag.</p>
+            <p className='tracking-tight text-sm text-center'>Stream YouTube videos in perfect sync with the crew. From cat clips to epic trailers, watch it all together, no lag.</p>
         </div>
         <div className='flex flex-col items-center gap-2 m-2'>
             <img className="md:w-18 md:h-18 w-15 h-15" src={sync_svg} alt="" />
             <p className='font-semibold md:text-xl'>Sync</p>
-            <p className='tracking-tight text-sm'>Starts, stops, and seeks are synchronized to everyone, so take those restroom and snack breaks without falling behind.</p>
+            <p className='tracking-tight text-sm text-center'>Starts, stops, and seeks are synchronized to everyone, so take those restroom and snack breaks without falling behind.</p>
             
         </div>
         <div className='flex flex-col items-center gap-2 m-2'>
             <img className="md:w-18 md:h-18 w-15 h-15" src={chat_svg} alt="" />
             <p className='font-semibold md:text-xl'>Chat</p>
-            <p className='tracking-tight text-sm'>Chat with everyone in your room to keep the vibes high. Share memes, trade inside jokes, or roast that one friend.</p>
+            <p className='tracking-tight text-sm text-center'>Chat with everyone in your room to keep the vibes high. Share memes, trade inside jokes, or roast that one friend.</p>
         </div>
         <div className='flex flex-col items-center gap-2 m-2'>
             <img className="md:w-18 md:h-18 w-15 h-15" src={reactions_svg} alt="" />
             <p className='font-semibold md:text-xl'>React</p>
-            <p className='tracking-tight text-sm'>Drop emojis, GIFs, or live reactions to hype up the moment. Laugh and scream—let everyone feel the vibe.</p>
+            <p className='tracking-tight text-sm text-center'>Drop emojis, GIFs, or live reactions to hype up the moment. Laugh and scream—let everyone feel the vibe.</p>
         </div>
       </div>
     </div>
