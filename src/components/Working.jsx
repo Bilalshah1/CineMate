@@ -33,7 +33,7 @@ function Working() {
           </div>
           <div className='flex flex-col items-center gap-2 m-2'>
               <img className="md:w-18 md:h-18 w-15 h-15" src={thumbsup_svg} alt="" />
-              <p className='font-semibold md:text-lg'>4. Success! Enjoy now!</p>
+              <p className='font-semibold md:text-lg'>4. Success. Enjoy now!</p>
           </div>        
         </div>
       </div>

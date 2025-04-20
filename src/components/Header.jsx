@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import bx_camera from '../assets/bx_camera.svg';
+import logo from '../assets/CineMateLOGO.png';
 import bx_user from '../assets/bx_user.svg';
 import hamburger from '../assets/hamburger.svg';
 
@@ -14,7 +14,7 @@ function Header() {
     <header className='flex items-center justify-between bg-gradient-to-r from-red-700 to-blue-950 text-white relative'>
       <div className='flex-none w-[25%]'>
         <a href="#" className='inline-block'>
-          <img className='w-15 h-12 md:w-20 md:h-15' src={bx_camera} alt="Camera Icon" />
+          <img className='scale-200 w-14 h-12 md:w-20 md:h-15' src={logo} alt="Camera Icon" />
         </a>
       </div>
 
@@ -51,7 +51,7 @@ function Header() {
         <div className='flex flex-col items-start p-6 space-y-8 mt-16'>
           <div className='flex items-center justify-between w-full'>
             <a href="#" className='inline-block' onClick={toggleMenu}>
-            <img className='w-15 h-12 md:w-20 md:h-15' src={bx_camera} alt="Camera Icon" />
+            <img className='scale-200 w-15 h-12 md:w-20 md:h-15' src={logo} alt="Camera Icon" />
             </a>
             <button className='p-2 focus:outline-none transform transition-transform duration-200 hover:scale-120' onClick={toggleMenu} aria-label="Close menu">
               ✕
