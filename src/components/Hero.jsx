@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import create_room from '../assets/create_room.svg';
-import copy_svg from '../assets/copy_svg.svg';
-import join_room from '../assets/join_room.svg';
+import create_room from '../assets/SVGs/hero_SVGs/create_room.svg';
+import copy_svg from '../assets/SVGs/hero_SVGs/copy_svg.svg';
+import join_room from '../assets/SVGs/hero_SVGs/join_room.svg';
 import preview from '../assets/mixkit_clapperboard.mp4';
-
 
 function Hero() {
   const [isCreateModal, setCreateModal] = useState(false);

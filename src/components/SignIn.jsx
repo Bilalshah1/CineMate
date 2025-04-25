@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import bg_party from '../assets/bg_party.jpg';
-import google_svg from '../assets/google_svg.svg';
+import signIn_bg from '../assets/signIn_bg.jpg';
+import google_svg from '../assets/SVGs/google_svg.svg';
 
-console.log('SVG URL:', bg_party);
+console.log('SVG URL:', signIn_bg);
 
 function SignIn() {
   const [isSignInView, setIsSignInView] = useState(true);
@@ -51,7 +51,7 @@ function SignIn() {
               </div>
               <div
                 className="signUp flex flex-col items-center justify-end bg-cover bg-center min-h-[400px] min-w-[350px] bg-no-repeat rounded-2xl gap-4 pb-4"
-                style={{ backgroundImage: `url(${bg_party})` }}
+                style={{ backgroundImage: `url(${signIn_bg})` }}
               >
                 <h1 className='text-xl md:text-2xl font-semibold drop-shadow-md text-gray-200'>Welcome to CineMate.</h1>
                 <h2 className='text-sm md:text-base font-medium drop-shadow-md text-gray-200'>Don't have an account?</h2>
@@ -69,7 +69,7 @@ function SignIn() {
             >
               <div
                 className="signUp flex flex-col items-center justify-end bg-cover bg-center min-h-[400px] min-w-[350px] bg-no-repeat rounded-2xl gap-4 pb-4"
-                style={{ backgroundImage: `url(${bg_party})` }}
+                style={{ backgroundImage: `url(${signIn_bg})` }}
               >
                 <h1 className='text-xl md:text-2xl font-semibold drop-shadow-md text-gray-200'>Welcome to CineMate.</h1>
                 <h2 className='text-sm md:text-base font-medium drop-shadow-md text-gray-200'>Already have an account?</h2>

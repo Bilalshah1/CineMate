@@ -1,7 +1,6 @@
 import React from 'react'
-import support_svg from '../assets/support_svg.svg';
-import maleprofile_svg from '../assets/maleprofile_svg.svg';
-
+import support_svg from '../assets/SVGs/support_SVGs/support_svg.svg';
+import maleprofile_svg from '../assets/SVGs/support_SVGs/maleprofile_svg.svg';
 
 function Support() {
   return (

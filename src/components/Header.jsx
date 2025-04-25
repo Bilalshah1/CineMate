@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import logo from '../assets/CineMateLOGO.png';
-import bx_user from '../assets/bx_user.svg';
-import hamburger from '../assets/hamburger.svg';
+import bx_user from '../assets/SVGs/header_SVGs/bx_user.svg';
+import hamburger from '../assets/SVGs/header_SVGs/hamburger.svg';
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -37,7 +37,7 @@ function Header() {
 
       {/* Mobile Menu Overlay */}
       {isMenuOpen && (
-        <div className='fixed inset-0 bg-gradient-to-b from-red-700 to-blue-950 bg-opacity-30 z-10 md:hidden' onClick={toggleMenu}>
+        <div className='fixed inset-0 bg-gradient-to-b from-red-700/50 to-blue-950/50  z-10 md:hidden' onClick={toggleMenu}>
         </div>
       )}
 

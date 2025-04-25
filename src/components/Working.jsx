@@ -1,10 +1,9 @@
 import React from 'react'
-import working_svg from '../assets/working_svg.svg';
-import create_room from '../assets/create_room.svg';
-import movie_svg from '../assets/movie_svg.svg';
-import group_svg from '../assets/group_svg.svg';
-import thumbsup_svg from '../assets/thumbsup_svg.svg';
-
+import create_room from '../assets/SVGs/hero_SVGs/create_room.svg';
+import working_svg from '../assets/SVGs/working_SVGs/working_svg.svg';
+import movie_svg from '../assets/SVGs/working_SVGs/movie_svg.svg';
+import group_svg from '../assets/SVGs/working_SVGs/group_svg.svg';
+import thumbsup_svg from '../assets/SVGs/working_SVGs/thumbsup_svg.svg';
 
 function Working() {
   return (

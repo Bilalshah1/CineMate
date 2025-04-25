@@ -1,9 +1,9 @@
 import React from 'react'
-import features_svg from '../assets/features_svg.svg';
-import sync_svg from '../assets/sync_svg.svg';
-import chat_svg from '../assets/chat_svg.svg';
-import reactions_svg from '../assets/reactions_svg.svg';
-import youtube_svg from '../assets/youtube_svg.svg';
+import features_svg from '../assets/SVGs/features_SVGs/features_svg.svg';
+import sync_svg from '../assets/SVGs/features_SVGs/sync_svg.svg';
+import chat_svg from '../assets/SVGs/features_SVGs/chat_svg.svg';
+import reactions_svg from '../assets/SVGs/features_SVGs/reactions_svg.svg';
+import youtube_svg from '../assets/SVGs/features_SVGs/youtube_svg.svg';
 
 function Features() {
   return (

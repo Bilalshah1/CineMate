@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 import logo from '../assets/CineMateLOGO.png';
 
 function Footer() {
@@ -41,4 +41,4 @@ function Footer() {
   );
 }
 
-export default Footer
+export default Footer;

@@ -6,19 +6,36 @@ import Features from './components/Features';
 import Working from './components/Working';
 import Support from './components/Support';
 import Footer from './components/Footer';
+import Room from './components/Room';
+import LiveChat from './components/LiveChat';
+import VideoPlayer from './components/VideoPlayer';
 
+// function App() {
+//   return (
+//     <div className="flex flex-col min-h-screen">
+//       <Header />
+//       <main className="flex-grow">
+//         <Hero></Hero>
+//         <Features></Features>
+//         <Working></Working>
+//         <Support></Support>
+//       </main>
+//       <Footer />
+//     </div>
+//   );
+// }
 function App() {
   return (
-    <>
-    <Header />
-    <Hero/>
-    <Features/>
-    <Working/>
-    <Support/>
-    <Footer/>
-    </>
-    
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <main className="flex-grow">
+        <VideoPlayer videoUrl="https://www.youtube.com/watch?v=mWXPvyEaApY"></VideoPlayer>
+      </main>
+      <Footer />
+    </div>
   );
 }
+
+
 
 export default App;
