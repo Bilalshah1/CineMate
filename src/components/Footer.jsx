@@ -3,7 +3,7 @@ import logo from '../assets/CineMateLOGO.png';
 
 function Footer() {
   return (
-    <footer className="bg-gradient-to-r from-red-700 to-blue-950 text-white px-6 py-3">
+    <footer className="bg-gradient-to-r from-red-700 to-blue-950 text-white px-6 py-1">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0">
         <div className="flex items-center space-y-1">
           <img src={logo} alt="Camera Icon" className="w-14 h-12 scale-150" />

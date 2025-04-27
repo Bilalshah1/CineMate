@@ -29,7 +29,7 @@ function App() {
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow">
-        <VideoPlayer videoUrl="https://www.youtube.com/watch?v=mWXPvyEaApY"></VideoPlayer>
+        <VideoPlayer videoUrl="https://www.youtube.com/watch?v=qfRYb2ex368"></VideoPlayer>
       </main>
       <Footer />
     </div>
