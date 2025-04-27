@@ -7,6 +7,7 @@ import fullScreen_svg from '../assets/SVGs/videoplayer_SVGs/fullScreen_svg.svg';
 import mute_svg from '../assets/SVGs/videoplayer_SVGs/mute_svg.svg';
 import pbSpeed_svg from '../assets/SVGs/videoplayer_SVGs/pbSpeed_svg.svg';
 import volume_svg from '../assets/SVGs/videoplayer_SVGs/volume_svg.svg';
+import videoQuality_svg from '../assets/SVGs/videoplayer_SVGs/videoQuality_svg.svg';
 
 // Function to format time
 const formatTime = (seconds) => {
@@ -43,11 +44,26 @@ function VideoPlayer({ videoUrl }) {
   const [previousVolume, setPreviousVolume] = useState(50);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
+  const [showQualityMenu, setshowQualityMenu] = useState(false);
+  const [Quality, setQuality] = useState('medium');
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [controlsVisible, setControlsVisible] = useState(true);
   const speedMenuRef = useRef(null);
-
+  const QualityMenuRef = useRef(null);
+  const controlsTimeoutRef = useRef(null);
   const playerContainerRef = useRef(null);
 
   const speedOptions = [0.25, 0.5, 0.75, 1, 1.5, 1.75, 2];
+  const qualityOptions = [
+    { value: 'hd1080', label: '1080p' },
+    { value: 'hd720', label: '720p' },
+    { value: 'large', label: '480p' },
+    { value: 'medium', label: '360p' },
+    { value: 'small', label: '240p' },
+    { value: 'tiny', label: '144p' },
+    { value: 'auto', label: 'Auto' }
+  ];
+  
 
   // Load YouTube IFrame API script dynamically
   useEffect(() => {
@@ -69,8 +85,18 @@ function VideoPlayer({ videoUrl }) {
         player.destroy();
       }
       window.onYouTubeIframeAPIReady = null;
+      clearTimeout(controlsTimeoutRef.current);
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
     };
   }, [videoId]);
+
+  // Handle fullscreen change events
+  useEffect(() => {
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
 
   // Handle clicks outside speed menu
   useEffect(() => {
@@ -85,11 +111,63 @@ function VideoPlayer({ videoUrl }) {
     };
   }, []);
 
+  // Handle clicks outside quality menu
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (QualityMenuRef.current && !QualityMenuRef.current.contains(event.target)) {
+        setshowQualityMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+  
+
+  // Auto-hide controls in fullscreen mode
+  useEffect(() => {
+    if (!isFullscreen) {
+      setControlsVisible(true);
+      return;
+    }
+
+    const resetControlsTimeout = () => {
+      document.addEventListener('touchstart', (e) => {
+        console.log('Touch at:', e.target);
+      }, {capture: true});
+      
+      clearTimeout(controlsTimeoutRef.current);
+      setControlsVisible(true);
+      controlsTimeoutRef.current = setTimeout(() => {
+        setControlsVisible(false);
+      }, 3000);
+    };
+
+    resetControlsTimeout();
+
+    const container = playerContainerRef.current;
+    if (container) {
+      container.addEventListener('mousemove', resetControlsTimeout);
+      container.addEventListener('touchstart', resetControlsTimeout);
+
+      return () => {
+        container.removeEventListener('mousemove', resetControlsTimeout);
+        container.removeEventListener('touchstart', resetControlsTimeout);
+      };
+      
+    }
+  }, [isFullscreen]);
+
   // Initialize the YouTube player
   const initializePlayer = () => {
+
+    const playerHeight = '100%';
+    const playerWidth = '100%';
+
     const newPlayer = new window.YT.Player('player', {
-      height: '340',
-      width: '60%',
+      height: playerHeight,
+      width: playerWidth,
       videoId: videoId,
       playerVars: {
         controls: 0,
@@ -133,6 +211,10 @@ function VideoPlayer({ videoUrl }) {
     return () => clearInterval(interval);
   }, [player]);
 
+  const handleFullscreenChange = () => {
+    setIsFullscreen(!!document.fullscreenElement);
+  };
+
   // Custom control handlers
   const togglePlayPause = () => {
     if (player) {
@@ -162,8 +244,8 @@ function VideoPlayer({ videoUrl }) {
     if (player) {
       const volume = parseInt(e.target.value);
       player.setVolume(volume);
-      setPreviousVolume(volume); // Update the previous volume reference
-      setIsMuted(volume === 0); // Mute state should match if volume is 0
+      setPreviousVolume(volume);
+      setIsMuted(volume === 0);
     }
   };
 
@@ -210,12 +292,30 @@ function VideoPlayer({ videoUrl }) {
     setShowSpeedMenu(false);
   };
 
+  const handleQualityChange = (quality) => {
+    if (player) {
+      player.setPlaybackQuality(quality);
+      setQuality(quality);
+    }
+    setshowQualityMenu(false);
+  };
+
   return (
-    <div className="p-2 md:p-5" ref={playerContainerRef}>
+    <div 
+      className="p-2 md:p-5 max-w-[100%] md:max-w-[60%]" 
+      ref={playerContainerRef}
+      style={{ height: '300px', position: 'relative' }}
+    >
       {videoId ? (
         <>
           <div id="player"></div>
-          <div className="flex flex-wrap gap-1 md:gap-2 items-center justify-between max-w-[60%] p-1 mt-2 bg-white rounded">
+          <div 
+            className={`flex flex-wrap gap-1 md:gap-1.5 items-center justify-between p-1 mt-2 bg-white rounded transition-opacity duration-300 ${isFullscreen ? 'absolute bottom-4 left-1/2 transform -translate-x-1/2 w-[100%] md:w-[80%]' : ''}`}
+            style={{
+              opacity: isFullscreen ? (controlsVisible ? 1 : 0) : 1,
+              pointerEvents: isFullscreen ? (controlsVisible ? 'auto' : 'none') : 'auto'
+            }}
+          >
             {/* Combined Play/Pause Button */}
             <button 
               className="text-white hover:cursor-pointer hover:scale-105 transition-transform active:scale-95"
@@ -224,7 +324,7 @@ function VideoPlayer({ videoUrl }) {
             >
               <img 
                 src={isPlaying ? play_svg : pause_svg} 
-                alt={isPlaying ? "Play" : "Pause"} 
+                alt={isPlaying ? "Play" : "Pause"}
                 className="w-6 h-6 md:w-5 md:h-5" 
               />
             </button>
@@ -247,7 +347,7 @@ function VideoPlayer({ videoUrl }) {
             </button>
 
             {/* Seek bar and time display */}
-            <div className="relative w-full md:w-80 order-last md:order-none">
+            <div className={`relative w-full order-last md:order-none ${isFullscreen ? 'md:w-[58%]' : 'md:w-70'}`}>
               <div className="flex justify-between text-xs text-gray-800 -mb-2">
                 <span>{formatTime(currentTime)}</span>
                 <span>{formatTime(duration)}</span>
@@ -293,7 +393,7 @@ function VideoPlayer({ videoUrl }) {
                 className="m-1 md:m-2 hover:cursor-pointer hover:scale-105 transition-transform active:scale-95"
                 aria-label={isMuted ? "Unmute" : "Mute"}
               >
-                <img src={isMuted ? mute_svg : volume_svg} alt={isMuted ? "Unmute" : "Mute"} className="w-8 h-8 md:w-7 md:h-7"/>
+                <img src={isMuted ? mute_svg : volume_svg} alt={isMuted ? "Unmute" : "Mute"} className="w-6 h-6 md:w-5 md:h-5"/>
               </button>
               <input
                 type="range"
@@ -338,6 +438,32 @@ function VideoPlayer({ videoUrl }) {
               )}
             </div>
 
+            {/* Quality Control */}
+            <div className="relative" ref={QualityMenuRef}>
+              <button 
+                className="text-black rounded-md hover:cursor-pointer hover:scale-105 transition-transform active:scale-95 flex items-center" 
+                onClick={() => setshowQualityMenu(!showQualityMenu)}
+                aria-label="Playback quality"
+              >
+                <img src={videoQuality_svg} alt="Quality" className={`w-5 h-5 md:w-4 md:h-4 transition-transform ${showQualityMenu ? 'rotate-180' : ''}`}
+                />
+              </button>
+              {showQualityMenu && (
+                <div className="absolute bottom-full left-0 mb-1 w-24 bg-gradient-to-r from-red-700 to-blue-950 rounded-md shadow-lg z-10">
+                  {qualityOptions.map((quality) => (
+                    <button
+                      key={quality}
+                      className={`w-full text-left px-2 py-1 text-sm text-white hover:bg-red-900 ${Quality === quality.value ? 'bg-blue-950' : ''}`}
+                      onClick={() => handleQualityChange(quality.value)}
+                    >
+                      {quality.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+
             {/* Fullscreen Button */}
             <button
               className="text-white hover:cursor-pointer hover:scale-105 transition-transform active:scale-95"
@@ -356,3 +482,7 @@ function VideoPlayer({ videoUrl }) {
 }
 
 export default VideoPlayer;
+
+// TODO
+// Mobile screen: video controls not showing after auto-hidden after 3 seconds in full-screen mode.
+// Both screens: 'position: 'relative' Issue.   
