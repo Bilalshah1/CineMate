@@ -171,7 +171,7 @@ function VideoPlayer({ videoUrl }) {
       videoId: videoId,
       playerVars: {
         controls: 0,
-        disablekb: 1,
+        disablekb: 0,
         rel: 0,
         showinfo: 0,
         modestbranding: 1,

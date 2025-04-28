@@ -9,6 +9,7 @@ import Footer from './components/Footer';
 import Room from './components/Room';
 import LiveChat from './components/LiveChat';
 import VideoPlayer from './components/VideoPlayer';
+import ProfileEdit from './components/ProfileEdit';
 
 // function App() {
 //   return (
@@ -24,12 +25,15 @@ import VideoPlayer from './components/VideoPlayer';
 //     </div>
 //   );
 // }
+
 function App() {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow">
-        <VideoPlayer videoUrl="https://www.youtube.com/watch?v=qfRYb2ex368"></VideoPlayer>
+        <div className='h-full w-full flex items-center justify-center'>
+          <ProfileEdit/>
+        </div>
       </main>
       <Footer />
     </div>

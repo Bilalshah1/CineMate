@@ -27,10 +27,10 @@ function SignIn() {
                 <form className='space-y-'>
                   <div>
                     <div>
-                      <label htmlFor="username">Username</label>
+                      <label htmlFor="username">Username/Email</label>
                     </div>
                     <div>
-                      <input className='bg-gray-200 w-full focus:outline-1 focus:outline-red-500 px-2 py-1 rounded-xl p-0.5 mb-3' type="text" id="username" name="username" required placeholder="Enter username"/>
+                      <input className='bg-gray-200 w-full focus:outline-1 focus:outline-red-500 px-2 py-1 rounded-xl p-0.5 mb-3' type="text" id="username" name="username" required placeholder="Enter username or email"/>
                     </div>
                   </div>
                   <div>
