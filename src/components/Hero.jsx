@@ -58,7 +58,7 @@ function Hero() {
               aria-haspopup="dialog"
             >
               <img className="w-6 ml-1 h-6" src={create_room} alt="" />
-              <p className="text-sm md:text-base flex-1 bg-red-800 group-hover:bg-blue-900 transition-colors duration-300 text-white px-4 py-1 rounded-r-md">
+              <p className="text-sm md:text-base flex-1 bg-red-800 group-hover:bg-blue-900 transition-colors duration-300 text-white px-3 py-1 rounded-r-md">
                 Create New Room
               </p>
             </button>
