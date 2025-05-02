@@ -1,9 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import bx_user from '../assets/SVGs/profile.svg';
 
+import { useAuth } from '../auth/AuthContext'; 
+import { updateUserProfile, deleteUserAccount } from '../utils/profiling';
+import { useNavigate } from 'react-router-dom';
+
+
 function ProfileEdit() {
-  const [username, setUsername] = useState('your_name');
+  const { user, logout } = useAuth();
+  
+  const navigate = useNavigate();
+  
+  const [username, setUsername] = useState(user?.displayName || '');
   const [mobile, setMobile] = useState('+923269718360');
   const [showPasswordFields, setShowPasswordFields] = useState(false);
   const [newPassword, setNewPassword] = useState('');
@@ -11,12 +20,45 @@ function ProfileEdit() {
   const [isPasswordChanged, setIsPasswordChanged] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
+  useEffect(() => {
+    if (user) {
+      setUsername(user.displayName || '');
+    }
+  }, [user]);
+
+  if (!user) return <p className='text-4xl text-center font-bold'>Loading...</p>;
+
   const handleChangePasswordClick = () => {
     if (!isPasswordChanged) {
       setShowPasswordFields(true);
       setIsPasswordChanged(true);
     }
   };
+
+  const handleSaveChanges = async (e) => {
+    e.preventDefault();
+    try {
+      // Password check logic
+      let finalPassword = '';
+      if (showPasswordFields) {
+        if (newPassword !== confirmPassword) {
+          return alert('Passwords do not match.');
+        }
+        finalPassword = newPassword;
+      }
+
+      const phoneRegex = /^\+?[0-9]{10,15}$/;
+      if (!phoneRegex.test(mobile)) {
+        return alert('Please enter a valid mobile number (e.g., +12345678900).');
+      }
+      
+      await updateUserProfile(user.uid, username, mobile, finalPassword);
+      window.location.reload();
+    } catch (error) {
+      console.error('Error updating profile:', error.message);
+      alert(error.message); // For clear feedback
+    }
+  };  
 
   const handleDeleteAccountClick = () => {
     setIsModalVisible(true);
@@ -26,21 +68,28 @@ function ProfileEdit() {
     setIsModalVisible(false);
   };
 
-  const handleDeleteAccountConfirm = () => {
-    alert('Account deleted');
-    setIsModalVisible(false);
+  const handleDeleteAccountConfirm = async () => {
+    try {
+      await deleteUserAccount(user.uid);
+      navigate('/');
+    } catch (error) {
+      console.error('Error deleting account:', error);
+    }
   };
-
+  
   return (
     <div className='w-full md:w-[90%] lg:w-[70%] xl:w-[50%] mx-4 md:mx-auto my-4 md:m-8 p-4 shadow-2xl bg-opacity-10 bg-gradient-to-l from-blue-400 via-purple-500 to-red-300 backdrop-blur-lg rounded-lg'>
       <div className='flex flex-col md:flex-row items-center justify-between px-4 border-b-1 border-black'>
         <div className='text-2xl md:text-3xl lg:text-4xl font-bold font-mono mb-4 md:mb-0'>Welcome!</div>
         <div className='flex items-center gap-2 md:gap-4 my-4'>
-          <img src={bx_user} className='w-12 h-12 md:w-16 md:h-16 rounded-full bg-green-400 shadow-lg p-2' alt="Profile" />
-          <div className='text-sm md:text-base'>Your Name <br /> email@domain.com</div>
+          <img src={bx_user} className='w-12 h-12 md:w-16 md:h-16 rounded-full bg-white shadow-lg p-2' alt="Profile" />
+          <div className='text-sm md:text-base'>
+            {user?.displayName || 'User'} <br />
+            {user?.email || 'email@domain.com'}
+          </div>
         </div>
       </div>
-      <form className="space-y-1 my-4">
+      <form className="space-y-1 my-4" onSubmit={handleSaveChanges}>
         <div className='w-full md:w-[80%] lg:w-[60%] flex flex-col md:flex-row gap-1 md:gap-2 items-start md:items-center'>
           <label htmlFor="username" className="w-full md:w-1/4 text-left block text-xs font-medium text-gray-700">Username</label>
           <input
@@ -61,7 +110,7 @@ function ProfileEdit() {
             id="email"
             className="mt-1 block w-full px-2 py-1 md:py-2 border border-gray-300 rounded-md cursor-not-allowed"
             disabled
-            placeholder='email@domain.com'
+            value={user?.email || ''}
           />
         </div>
 

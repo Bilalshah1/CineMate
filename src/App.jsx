@@ -1,4 +1,6 @@
 import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
 import SignIn from './components/SignIn';
 import Header from './components/Header';
 import Hero from './components/Hero';
@@ -11,32 +13,52 @@ import LiveChat from './components/LiveChat';
 import VideoPlayer from './components/VideoPlayer';
 import ProfileEdit from './components/ProfileEdit';
 
-// function App() {
-//   return (
-//     <div className="flex flex-col min-h-screen">
-//       <Header />
-//       <main className="flex-grow">
-//         <Hero></Hero>
-//         <Features></Features>
-//         <Working></Working>
-//         <Support></Support>
-//       </main>
-//       <Footer />
-//     </div>
-//   );
-// }
-
 function App() {
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-      <main className="flex-grow">
-        <div className='h-full w-full flex items-center justify-center'>
-          <ProfileEdit/>
-        </div>
-      </main>
-      <Footer />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<SignIn />}/>
+        <Route
+          path="/home"
+          element={
+            <div className="flex flex-col min-h-screen">
+              <Header />
+              <main className="flex-grow">
+                <Hero/>
+                <Features/>
+                <Working/>
+                <Support/>
+              </main>
+              <Footer />
+            </div>
+          }
+        />
+        <Route 
+          path="/profile" 
+          element={
+            <div className="flex flex-col min-h-screen">
+              <Header />
+              <main className="flex-grow">
+                <ProfileEdit/>
+              </main>
+              <Footer />
+            </div>
+          }
+        />
+        <Route 
+          path="/room" 
+          element={
+            <div className="flex flex-col min-h-screen">
+              <Header />
+              <main className="flex-grow">
+                <Room/>
+              </main>
+              <Footer />
+            </div>
+          }
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

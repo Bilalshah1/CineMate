@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import { AnimatePresence, motion } from 'framer-motion';
 import create_room from '../assets/SVGs/hero_SVGs/create_room.svg';
 import copy_svg from '../assets/SVGs/hero_SVGs/copy_svg.svg';
@@ -6,6 +8,8 @@ import join_room from '../assets/SVGs/hero_SVGs/join_room.svg';
 import preview from '../assets/mixkit_clapperboard.mp4';
 
 function Hero() {
+  const navigate = useNavigate()
+
   const [isCreateModal, setCreateModal] = useState(false);
   const [isJoinModal, setJoinModal] = useState(false);
 
@@ -32,6 +36,7 @@ function Hero() {
 
   const handleCreateRoomSubmit = () => {
     setCreateModal(false);
+    navigate('/room'); // Navigate to /room
   };
 
   const handleJoinRoomSubmit = () => {
