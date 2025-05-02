@@ -131,7 +131,7 @@ function Hero() {
               <div className='flex items-center justify-between border border-gray-700 rounded-full w-full bg-gray-100 hover:bg-gray-300 transition-colors duration-300 px-4 py-2'>
                 <span className='flex-1 text-center text-gray-800 font-medium'>52F96B7B</span>
                 <div className='w-5 h-5 mx-1 relative before:content-[""] before:absolute before:left-[-10px] before:top-0 before:h-full before:border-l before:border-gray-700'>
-                  <img src={copy_svg} className='w-full h-full hover:cursor-pointer hover:scale-115 transition-all duration-200' alt="Share" />
+                  <img src={copy_svg} className='w-full h-full hover:cursor-pointer hover:scale-115 transition-all duration-200' alt="Share" onClick={() => navigator.clipboard.writeText('52F96B7B')}/>
                 </div>
               </div>
               <span className='text-sm text-gray-800 mt-3 text-center'>You can share this Room ID with your friends to join your room.</span>
