@@ -328,7 +328,7 @@ function VideoPlayer({ videoUrl }) {
               aria-label={isPlaying ? "Pause" : "Play"}
             >
               <img
-                src={isPlaying ? play_svg : pause_svg}
+                src={isPlaying ? pause_svg : play_svg}
                 alt={isPlaying ? "Play" : "Pause"}
                 className="w-6 h-6 md:w-5 md:h-5"
               />

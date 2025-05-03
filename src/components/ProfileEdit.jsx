@@ -21,7 +21,7 @@ function ProfileEdit() {
   const navigate = useNavigate();
   
   const [username, setUsername] = useState(user?.displayName || '');
-  const [mobile, setMobile] = useState('+923269718360');
+  const [mobile, setMobile] = useState(user?.mobile || '');
   const [showPasswordFields, setShowPasswordFields] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -33,6 +33,13 @@ function ProfileEdit() {
       setUsername(user.displayName || '');
     }
   }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      setMobile(user.mobile || '');
+    }
+  }, [user]);
+
 
   if (!user) return <p className='text-4xl text-center font-bold'>Loading...</p>;
 
