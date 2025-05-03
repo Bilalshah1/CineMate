@@ -1,22 +1,254 @@
-import React from 'react'
+// 1. Core libraries
+import React, { useState, useEffect } from 'react';
+
+// 2. Third-party libraries
+import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate, useParams } from 'react-router-dom';
+
+// 4. Authentication and Firebase context
+import { useAuth } from '../auth/AuthContext';
+import { db } from '../firebase/firebaseConfig';
+
+// 3. Utilities and helper functions
+import { deleteRoomIfCreator } from '../utils/roomUtils';
+
+// 6. Local components
+import VideoPlayer from './VideoPlayer';
+
+// 2b. Firebase-specific functions (if separated for clarity)
+import { doc, getDoc } from 'firebase/firestore';
+
+// 5. Static resources (SVGs)
 import go_svg from '../assets/SVGs/room_SVGs/go_svg.svg';
+import deleteRoom_svg from '../assets/SVGs/room_SVGs/deleteRoom_svg.svg';
+import peopleRem_svg from '../assets/SVGs/room_SVGs/peopleRem_svg.svg';
+import link_svg from '../assets/SVGs/room_SVGs/link_svg.svg';
+import removePerson_svg from '../assets/SVGs/room_SVGs/removePerson_svg.svg';
+import copy_svg from '../assets/SVGs/hero_SVGs/copy_svg.svg';
+
+
+/*
+Some Video-links
+1. Rick Astley - Never Gonna Give You Up (Official Music Video)
+https://youtu.be/dQw4w9WgXcQ
+2. Carla Chamoun - Khedni Maak - Cover
+https://youtu.be/5GgfjmqKbM8 
+3. Abeer Nehme - Baadni Bhebak
+https://youtu.be/a9y85vsWhu4
+4. Sami Yusuf - Nasimi (Expo Version) [Live] 
+https://youtu.be/BdoGhpoNu84
+5. Nancy Ajram Feat K'naan - Waving Flag (Official Music Video)
+https://youtu.be/fSo2Ll6YTwc
+*/
 
 function Room() {
+  const [videoUrl, setVideoUrl] = useState('https://youtu.be/5GgfjmqKbM8');
+  const [isWhosHereModal, setWhosHereModal] = useState(false);
+  
+  const { user } = useAuth();
+  const { roomId } = useParams();
+  const navigate = useNavigate();
+
+  const [room, setRoom] = useState(null);
+  useEffect(() => {
+    const fetchRoom = async () => {
+      const roomRef = doc(db, 'rooms', roomId);
+      const roomSnap = await getDoc(roomRef);
+      if (roomSnap.exists()) {
+        setRoom(roomSnap.data());
+      }
+    };
+  
+    fetchRoom();
+  }, [roomId]);
+
+  // Mock users data
+  const [users, setUsers] = useState([
+    { id: 1, name: 'User1' },
+    { id: 2, name: 'User2' },
+    { id: 3, name: 'User3' }
+  ]);
+
+  // const handleUrlSubmit = () => {
+  //   const input = document.querySelector('input[type="text"]');
+  //   const url = input.value.trim();
+    
+  //   alert(url);
+
+  //   // Improved regex
+  //   const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([A-Za-z0-9_-]{11})/;
+    
+  //   if (youtubeRegex.test(url)) {
+  //     alert('IF');
+  //     const videoId = url.match(youtubeRegex)[4];
+  //     alert(videoId);
+  //     setVideoUrl(`https://www.youtube.com/watch?v=${videoId}`);
+  //     alert(videoUrl);
+  //   } else {
+  //     alert('ELSE');
+  //     input.setCustomValidity('Enter a valid YouTube video URL.');
+  //     input.reportValidity(); 
+  //     input.setCustomValidity('');
+  //   }
+  //   alert('handleUrlSubmit Completed.');
+  // };
+
+  const handleRemoveUser = (userId) => {
+    // Placeholder function for user removal
+    setUsers(users.filter(user => user.id !== userId));
+  };
+
+  const handleDeleteRoom = async () => {
+    if (!user || !room) return;
+  
+    const result = await deleteRoomIfCreator(roomId, user.uid);
+    if (result.success) {
+      navigate("/home");
+    } else {
+      alert(`Error: ${result.message}`);
+    }
+  };
+
   return (
-    <div>
-      <div className='w-1/3 flex items-center justify-between border border-gray-700 rounded-xl bg-gray-100 transition-colors duration-300 px-2 py-2'>
-        <input
-          type='text'
-          placeholder='e.g., https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-          className='flex-1 text-center text-gray-800 font-medium bg-transparent outline-none placeholder-gray-500'
-          pattern='^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/(watch\?v=)?[A-Za-z0-9_-]{11}$'
-          title='Enter a valid YouTube video URL (e.g., https://www.youtube.com/watch?v=dQw4w9WgXcQ)'
-          onInput={(e) => e.target.value = e.target.value.trim()}
-        />
+    <div className="p-2 md:px-4">
+      {/* Top Controls Section */}
+      <div className='flex flex-col md:flex-row items-center justify-between gap-4'>
+        {/* Video URL Input */}
+        <div className='w-full md:w-1/2 flex flex-col'>
+          <span className='m-1 ml-2 md:ml-5 text-sm md:text-base'>
+            <img src={link_svg} alt="" className='w-4 h-4 inline mr-1'/> 
+            Paste the link below to begin synchronized playback.
+          </span>
+          <div className='p-1 md:p-2 flex items-center justify-between border border-gray-700 rounded-xl bg-gray-100 transition-colors duration-300'>
+            <input
+              type='text'
+              value={videoUrl}
+              placeholder='e.g., https://youtu.be/dQw4w9WgXcQ'
+              className='flex-1 text-center text-gray-800 text-sm md:text-base font-medium bg-transparent outline-none placeholder-gray-500 px-2'
+              title='Enter a valid YouTube video URL (e.g., https://youtu.be/dQw4w9WgXcQ)'
+              onChange={(e) => setVideoUrl(e.target.value)}
+              onInput={(e) => e.target.value = e.target.value.trim()}
+            />
+            {/*
+            <button 
+              onClick={handleUrlSubmit}
+              className='border-l border-gray-700 pl-2 pr-1'
+            >
+              <img src={go_svg} alt="Submit" className='w-5 h-5 ml-1 hover:cursor-pointer hover:scale-110 transition-all duration-200'/>
+            </button>
+            */}
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className='flex justify-between w-full md:w-auto gap-2'>
+          {/* Room ID Copy Button */}
+          <div className='flex items-center justify-between border-2 border-gray-700 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors duration-300 px-3 py-1.5 min-w-[120px] group'>
+            <span className='flex-1 text-center text-gray-800 font-medium text-sm truncate'>{roomId}</span>
+            <div className='w-5 h-5 ml-2 relative'>
+              <div className='absolute left-[-2px] top-0 h-full border-l border-gray-700'></div>
+              <img 
+                src={copy_svg} 
+                className='w-full h-full hover:cursor-pointer hover:scale-110 transition-all duration-200 group-hover:opacity-80'
+                alt="Copy Room ID"
+                onClick={() => navigator.clipboard.writeText(roomId)}
+              />
+            </div>
+          </div>
+
+          {/* Who's Here Button */}
+          <button 
+            className="bg-blue-900 group-hover:bg-red-800 flex items-center border-2 border-black shadow-md hover:shadow-xl hover:scale-102 rounded-lg transition-all duration-300 active:scale-108 group min-w-[120px] h-[40px]"
+            onClick={() => setWhosHereModal(true)}
+          >
+            <img className="w-5 h-5 ml-2" src={peopleRem_svg} alt="Who's Here" />
+            <p className="text-sm flex-1  text-white px-3 py-1.5 rounded-r-md">
+              Who's Here
+            </p>
+          </button>
+
+          {/* Delete Room Button */}
+          {room && user?.uid === room.ownerUid && (
+          <button 
+            className="bg-red-800 group-hover:bg-blue-900 flex items-center border-2 border-black shadow-md hover:shadow-xl hover:scale-102 rounded-lg transition-all duration-300 active:scale-108 group min-w-[120px] h-[40px]"
+            onClick={handleDeleteRoom}
+          >
+            <p className="text-sm flex-1 text-white px-3 py-1.5 rounded-l-md">
+              Delete Room
+            </p>
+            <img className="w-5 h-5 mr-2" src={deleteRoom_svg} alt="Delete Room" />
+          </button>
+          )}
+        </div>
       </div>
+
+      {/* Video and Chat Section */}
+      <div className='flex flex-col lg:flex-row justify-between gap-4'>
+        <VideoPlayer videoUrl={videoUrl}/>
+        <div className='mt-24 lg:mt-2 h-60 md:h-80 md:w-[58%] w-full lg:w-1/3 bg-gradient-to-br from-yellow-200 to-yellow-400 rounded-lg shadow-md p-3 border border-yellow-600'>
+          <h3 className='text-lg font-semibold text-gray-800 mb-2'>Chat</h3>
+          <div className='h-full bg-white/50 rounded p-2 text-center text-gray-600'>
+            Chat functionality coming soon
+          </div>
+        </div>
+      </div>
+
+      {/* Who's Here Modal */}
+      <AnimatePresence>
+        {isWhosHereModal && (
+          <motion.div 
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            onClick={() => setWhosHereModal(false)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <motion.div 
+              className="absolute inset-0 bg-blue-700/20"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            ></motion.div>
+            <motion.div 
+              className="relative z-50 flex flex-col items-center w-80 p-6 bg-gradient-to-l from-blue-400 via-purple-500 to-red-300 overflow-hidden rounded-xl shadow-lg hover:scale-105 transition-all duration-300"
+              onClick={(e) => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="whos-here-heading"
+              initial={{ scale: 0.8, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: 20 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+            >
+              <span id="whos-here-heading" className='text-xl font-semibold text-gray-900 mb-4'>Who's Here</span>
+              <div className="w-full space-y-2">
+                {users.map(user => (
+                  <div key={user.id} className="flex items-center justify-between bg-white/80 p-2 rounded-lg">
+                    <span className="text-gray-800">{user.name}</span>
+                    <button 
+                      onClick={() => handleRemoveUser(user.id)}
+                      className="text-red-600 hover:text-red-800 transition-colors"
+                      aria-label={`Remove ${user.name}`}
+                    >
+                      <img src={removePerson_svg} alt="Remove" className="w-5 h-5"/>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
 
 export default Room
 
+// TODO
+// The 'goto' button mis-behaving therefore commented-out.
+// Un-intuitive URL-change functionality
+// Even upon successful updation of videoUrl, new video is not loading.
+// Room retained in Firebase storage permanetly. (Should be solved)

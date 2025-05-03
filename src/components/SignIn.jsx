@@ -1,12 +1,20 @@
+// 1. Core libraries
 import React, { useState } from 'react';
+
+// 2. Third-party libraries
 import { AnimatePresence, motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+
+// 4. Authentication and Firebase context
+import { useAuth } from '../auth/AuthContext';
+
+// 3. Utilities and helper functions
+import { getFirebaseAuthErrorMessage } from '../utils/firebaseErrorMessage';
+
+// 5. Static resources (images and SVGs)
 import signIn_bg from '../assets/signIn_bg.jpg';
 import google_svg from '../assets/SVGs/google_svg.svg';
 
-import { useAuth } from '../auth/AuthContext'; 
-import { useNavigate } from 'react-router-dom';
-
-import { getFirebaseAuthErrorMessage } from '../utils/firebaseErrorMessage';
 
 function SignIn() {
   const [isSignInView, setIsSignInView] = useState(true);

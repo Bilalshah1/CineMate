@@ -1,4 +1,7 @@
+// 1. Core libraries
 import { createContext, useContext, useEffect, useState } from 'react';
+
+// 2. Third-party libraries (Firebase modules)
 import {
   onAuthStateChanged,
   signOut,
@@ -7,12 +10,15 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   updateProfile,
-  setPersistence, 
-  browserLocalPersistence, 
+  setPersistence,
+  browserLocalPersistence,
   browserSessionPersistence
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+
+// 4. Firebase configuration
 import { auth, db } from '../firebase/firebaseConfig';
+
 
 // Create context and custom hook
 const AuthContext = createContext();

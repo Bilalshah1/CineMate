@@ -1,4 +1,7 @@
+// 1. Core libraries
 import React, { useEffect, useState, useRef } from 'react';
+
+// 5. Static resources (SVGs for video player controls)
 import play_svg from '../assets/SVGs/videoplayer_SVGs/play_svg.svg';
 import pause_svg from '../assets/SVGs/videoplayer_SVGs/pause_svg.svg';
 import seek10_svg from '../assets/SVGs/videoplayer_SVGs/seek10_svg.svg';
@@ -9,6 +12,7 @@ import pbSpeed_svg from '../assets/SVGs/videoplayer_SVGs/pbSpeed_svg.svg';
 import volume_svg from '../assets/SVGs/videoplayer_SVGs/volume_svg.svg';
 import videoQuality_svg from '../assets/SVGs/videoplayer_SVGs/videoQuality_svg.svg';
 
+
 // Function to format time
 const formatTime = (seconds) => {
   const hrs = Math.floor(seconds / 3600);
@@ -18,8 +22,8 @@ const formatTime = (seconds) => {
   const paddedMins = mins < 10 && hrs > 0 ? '0' + mins : mins;
   const paddedSecs = secs < 10 ? '0' + secs : secs;
 
-  return hrs > 0 
-    ? `${hrs}:${paddedMins}:${paddedSecs}` 
+  return hrs > 0
+    ? `${hrs}:${paddedMins}:${paddedSecs}`
     : `${mins}:${paddedSecs}`;
 };
 
@@ -63,7 +67,7 @@ function VideoPlayer({ videoUrl }) {
     { value: 'tiny', label: '144p' },
     { value: 'auto', label: 'Auto' }
   ];
-  
+
 
   // Load YouTube IFrame API script dynamically
   useEffect(() => {
@@ -123,7 +127,7 @@ function VideoPlayer({ videoUrl }) {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-  
+
 
   // Auto-hide controls in fullscreen mode
   useEffect(() => {
@@ -135,8 +139,8 @@ function VideoPlayer({ videoUrl }) {
     const resetControlsTimeout = () => {
       document.addEventListener('touchstart', (e) => {
         console.log('Touch at:', e.target);
-      }, {capture: true});
-      
+      }, { capture: true });
+
       clearTimeout(controlsTimeoutRef.current);
       setControlsVisible(true);
       controlsTimeoutRef.current = setTimeout(() => {
@@ -155,7 +159,7 @@ function VideoPlayer({ videoUrl }) {
         container.removeEventListener('mousemove', resetControlsTimeout);
         container.removeEventListener('touchstart', resetControlsTimeout);
       };
-      
+
     }
   }, [isFullscreen]);
 
@@ -175,6 +179,7 @@ function VideoPlayer({ videoUrl }) {
         rel: 0,
         showinfo: 0,
         modestbranding: 1,
+        origin: window.location.origin, // Added this to match local origin
       },
       events: {
         onReady: (event) => {
@@ -185,20 +190,20 @@ function VideoPlayer({ videoUrl }) {
         onStateChange: (event) => {
           if (event.data === window.YT.PlayerState.PLAYING) {
             setIsPlaying(true);
-          } else if (event.data === window.YT.PlayerState.PAUSED || 
-                     event.data === window.YT.PlayerState.ENDED) {
+          } else if (event.data === window.YT.PlayerState.PAUSED ||
+            event.data === window.YT.PlayerState.ENDED) {
             setIsPlaying(false);
           }
         },
       },
     });
-    setPlayer(newPlayer);
+    // setPlayer(newPlayer);
   };
 
   // Update current time for seek bar
   useEffect(() => {
     let interval;
-    if (player) {
+    if (player && typeof player.getCurrentTime === 'function') {
       interval = setInterval(() => {
         try {
           const time = player.getCurrentTime();
@@ -259,7 +264,7 @@ function VideoPlayer({ videoUrl }) {
 
   const toggleFullScreen = () => {
     if (!playerContainerRef.current) return;
-    
+
     if (!document.fullscreenElement) {
       playerContainerRef.current.requestFullscreen().catch(err => {
         console.error(`Error attempting to enable fullscreen: ${err.message}`);
@@ -275,7 +280,7 @@ function VideoPlayer({ videoUrl }) {
     if (player) {
       if (isMuted) {
         player.unMute();
-        player.setVolume(previousVolume); 
+        player.setVolume(previousVolume);
       } else {
         setPreviousVolume(player.getVolume());
         player.mute();
@@ -301,15 +306,15 @@ function VideoPlayer({ videoUrl }) {
   };
 
   return (
-    <div 
-      className="p-2 md:p-5 max-w-[100%] md:max-w-[60%]" 
+    <div
+      className="p-2 md:p-5 max-w-[100%] md:max-w-[60%]"
       ref={playerContainerRef}
       style={{ height: '300px', position: 'relative' }}
     >
       {videoId ? (
         <>
           <div id="player"></div>
-          <div 
+          <div
             className={`flex flex-wrap gap-1 md:gap-1.5 items-center justify-between p-1 mt-2 bg-white rounded transition-opacity duration-300 ${isFullscreen ? 'absolute bottom-4 left-1/2 transform -translate-x-1/2 w-[100%] md:w-[80%]' : ''}`}
             style={{
               opacity: isFullscreen ? (controlsVisible ? 1 : 0) : 1,
@@ -317,20 +322,20 @@ function VideoPlayer({ videoUrl }) {
             }}
           >
             {/* Combined Play/Pause Button */}
-            <button 
+            <button
               className="text-white hover:cursor-pointer hover:scale-105 transition-transform active:scale-95"
               onClick={togglePlayPause}
               aria-label={isPlaying ? "Pause" : "Play"}
             >
-              <img 
-                src={isPlaying ? play_svg : pause_svg} 
+              <img
+                src={isPlaying ? play_svg : pause_svg}
                 alt={isPlaying ? "Play" : "Pause"}
-                className="w-6 h-6 md:w-5 md:h-5" 
+                className="w-6 h-6 md:w-5 md:h-5"
               />
             </button>
 
             {/* Seek Buttons */}
-            <button 
+            <button
               className="text-white hover:cursor-pointer hover:scale-105 transition-transform active:scale-95"
               onClick={() => handleSeekBy(-10)}
               aria-label="Seek back 10 seconds"
@@ -338,7 +343,7 @@ function VideoPlayer({ videoUrl }) {
               <img src={seek10back_svg} alt="Seek Back 10s" className="w-7 h-7 md:w-6 md:h-6" />
             </button>
 
-            <button 
+            <button
               className="text-white hover:cursor-pointer hover:scale-105 transition-transform active:scale-95"
               onClick={() => handleSeekBy(10)}
               aria-label="Seek forward 10 seconds"
@@ -352,7 +357,7 @@ function VideoPlayer({ videoUrl }) {
                 <span>{formatTime(currentTime)}</span>
                 <span>{formatTime(duration)}</span>
               </div>
-              <div 
+              <div
                 className="relative h-9"
                 onMouseEnter={() => setIsHovering(true)}
                 onMouseLeave={() => setIsHovering(false)}
@@ -385,11 +390,11 @@ function VideoPlayer({ videoUrl }) {
                 )}
               </div>
             </div>
-            
+
             {/* Volume Controls */}
             <div className="flex items-center gap-1 md:gap-2">
-              <button 
-                onClick={toggleMute} 
+              <button
+                onClick={toggleMute}
                 className="m-1 md:m-2 hover:cursor-pointer hover:scale-105 transition-transform active:scale-95"
                 aria-label={isMuted ? "Unmute" : "Mute"}
               >
@@ -405,7 +410,7 @@ function VideoPlayer({ videoUrl }) {
                     : typeof player?.getVolume === "function"
                       ? player.getVolume()
                       : 50
-                }                  
+                }
                 onChange={handleVolumeChange}
                 disabled={isMuted}
                 className={`w-16 md:w-24 appearance-none h-1.5 md:h-1.5 bg-gradient-to-l from-blue-400 via-purple-500 to-red-300 cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-1.5 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:rounded-none [&::-webkit-slider-thumb]:bg-blue-950 md:[&::-webkit-slider-thumb]:h-1.5 md:[&::-webkit-slider-thumb]:w-1.5 md:[&::-webkit-slider-thumb]:rounded-none ${isMuted ? 'opacity-50' : ''}`}
@@ -414,8 +419,8 @@ function VideoPlayer({ videoUrl }) {
 
             {/* Playback Speed Control */}
             <div className="relative" ref={speedMenuRef}>
-              <button 
-                className="text-black rounded-md hover:cursor-pointer hover:scale-105 transition-transform active:scale-95 flex items-center" 
+              <button
+                className="text-black rounded-md hover:cursor-pointer hover:scale-105 transition-transform active:scale-95 flex items-center"
                 onClick={() => setShowSpeedMenu(!showSpeedMenu)}
                 aria-label="Playback speed"
               >
@@ -440,8 +445,8 @@ function VideoPlayer({ videoUrl }) {
 
             {/* Quality Control */}
             <div className="relative" ref={QualityMenuRef}>
-              <button 
-                className="text-black rounded-md hover:cursor-pointer hover:scale-105 transition-transform active:scale-95 flex items-center" 
+              <button
+                className="text-black rounded-md hover:cursor-pointer hover:scale-105 transition-transform active:scale-95 flex items-center"
                 onClick={() => setshowQualityMenu(!showQualityMenu)}
                 aria-label="Playback quality"
               >

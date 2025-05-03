@@ -1,9 +1,14 @@
+// 1. Core libraries
 import React, { useState } from 'react';
+
+// 2. Third-party libraries
 import { Link } from 'react-router-dom';
 
+// 5. Static resources (images and SVGs)
 import logo from '../assets/CineMateLOGO.png';
 import bx_user from '../assets/SVGs/header_SVGs/bx_user.svg';
 import hamburger from '../assets/SVGs/header_SVGs/hamburger.svg';
+
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

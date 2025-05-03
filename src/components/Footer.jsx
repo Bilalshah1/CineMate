@@ -1,5 +1,9 @@
+// 1. Core libraries
 import React from 'react';
+
+// 5. Static resources (images)
 import logo from '../assets/CineMateLOGO.png';
+
 
 function Footer() {
   return (

@@ -1,6 +1,10 @@
-import React from 'react'
+// 1. Core libraries
+import React from 'react';
+
+// 5. Static resources (SVGs)
 import support_svg from '../assets/SVGs/support_SVGs/support_svg.svg';
 import maleprofile_svg from '../assets/SVGs/support_SVGs/maleprofile_svg.svg';
+
 
 function Support() {
   return (

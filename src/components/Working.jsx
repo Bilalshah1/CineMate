@@ -1,9 +1,13 @@
-import React from 'react'
+// 1. Core libraries
+import React from 'react';
+
+// 5. Static resources (SVGs)
 import create_room from '../assets/SVGs/hero_SVGs/create_room.svg';
 import working_svg from '../assets/SVGs/working_SVGs/working_svg.svg';
 import movie_svg from '../assets/SVGs/working_SVGs/movie_svg.svg';
 import group_svg from '../assets/SVGs/working_SVGs/group_svg.svg';
 import thumbsup_svg from '../assets/SVGs/working_SVGs/thumbsup_svg.svg';
+
 
 function Working() {
   return (

@@ -1,10 +1,18 @@
+// 1. Core libraries
 import React, { useState, useEffect } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import bx_user from '../assets/SVGs/profile.svg';
 
-import { useAuth } from '../auth/AuthContext'; 
-import { updateUserProfile, deleteUserAccount } from '../utils/profiling';
+// 2. Third-party libraries
+import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+
+// 4. Authentication and Firebase context
+import { useAuth } from '../auth/AuthContext';
+
+// 3. Utilities and helper functions
+import { updateUserProfile, deleteUserAccount } from '../utils/profiling';
+
+// 5. Static resources (SVGs)
+import bx_user from '../assets/SVGs/profile.svg';
 
 
 function ProfileEdit() {

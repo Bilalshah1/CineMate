@@ -1,9 +1,13 @@
-import React from 'react'
+// 1. Core libraries
+import React from 'react';
+
+// 5. Static resources (SVGs)
 import features_svg from '../assets/SVGs/features_SVGs/features_svg.svg';
 import sync_svg from '../assets/SVGs/features_SVGs/sync_svg.svg';
 import chat_svg from '../assets/SVGs/features_SVGs/chat_svg.svg';
 import reactions_svg from '../assets/SVGs/features_SVGs/reactions_svg.svg';
 import youtube_svg from '../assets/SVGs/features_SVGs/youtube_svg.svg';
+
 
 function Features() {
   return (

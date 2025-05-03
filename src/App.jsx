@@ -17,7 +17,11 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<SignIn />}/>
+        <Route 
+          path="/" 
+          element={<SignIn />
+          }
+        />
         <Route
           path="/home"
           element={
@@ -46,7 +50,7 @@ function App() {
           }
         />
         <Route 
-          path="/room" 
+          path="/room/:roomId" 
           element={
             <div className="flex flex-col min-h-screen">
               <Header />
