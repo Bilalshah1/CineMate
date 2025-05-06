@@ -1,6 +1,16 @@
 // 1. Core libraries
 import React, { useEffect, useState, useRef } from 'react';
 
+// 2. Third-party libraries
+import { useParams } from 'react-router-dom';
+
+// 4. Authentication and Firebase context
+import { db } from '../firebase/firebaseConfig'; 
+import { useAuth } from '../auth/AuthContext';
+
+// 2b. Firebase-specific functions (if separated for clarity)
+import { doc, updateDoc, onSnapshot } from 'firebase/firestore';
+
 // 5. Static resources (SVGs for video player controls)
 import play_svg from '../assets/SVGs/videoplayer_SVGs/play_svg.svg';
 import pause_svg from '../assets/SVGs/videoplayer_SVGs/pause_svg.svg';
@@ -37,6 +47,10 @@ const getVideoId = (url) => {
 
 function VideoPlayer({ videoUrl }) {
   const videoId = getVideoId(videoUrl);
+  const { user } = useAuth();
+  // console.log('[DEBUG]',user);
+  const { roomId } = useParams();
+
 
   const [player, setPlayer] = useState(null);
   const [currentTime, setCurrentTime] = useState(0);
@@ -44,6 +58,7 @@ function VideoPlayer({ videoUrl }) {
   const [isHovering, setIsHovering] = useState(false);
   const [hoverTime, setHoverTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [volume, setVolume] = useState(50);
   const [isMuted, setIsMuted] = useState(false);
   const [previousVolume, setPreviousVolume] = useState(50);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
@@ -56,6 +71,7 @@ function VideoPlayer({ videoUrl }) {
   const QualityMenuRef = useRef(null);
   const controlsTimeoutRef = useRef(null);
   const playerContainerRef = useRef(null);
+  const unsubscribeRef = useRef(null);
 
   const speedOptions = [0.25, 0.5, 0.75, 1, 1.5, 1.75, 2];
   const qualityOptions = [
@@ -220,39 +236,134 @@ function VideoPlayer({ videoUrl }) {
     setIsFullscreen(!!document.fullscreenElement);
   };
 
-  // Custom control handlers
-  const togglePlayPause = () => {
-    if (player) {
-      if (isPlaying) {
-        player.pauseVideo();
-      } else {
-        player.playVideo();
+
+  // Listener to the room doc using onSnapshot to reflect updates from Firestore
+  useEffect(() => {
+    if (!roomId) return;
+  
+    unsubscribeRef.current = onSnapshot(doc(db, 'rooms', roomId), (docSnap) => {
+      if (!docSnap.exists()) return;
+  
+      const playback = docSnap.data().playback;
+      if (!playback || !player) return;
+  
+      // Avoid feedback loops but replace this with user id check and ignoring self done things 
+      if (Date.now() - playback.lastUpdated < 5) return;
+  
+      setPlaybackRate(playback.playbackRate);
+      player.setPlaybackRate(playback.playbackRate);
+  
+      if (Math.abs(playback.currentTime - player.getCurrentTime()) > 1) {
+        player.seekTo(playback.currentTime);
       }
+  
+      if (playback.isPlaying && !isPlaying) {
+        player.playVideo();
+      } else if (!playback.isPlaying && isPlaying) {
+        player.pauseVideo();
+      }
+  
+      player.setVolume(playback.volume);
+      if (playback.isMuted) player.mute();
+      else player.unMute();
+    });
+  
+    return () => {
+      if (unsubscribeRef.current) unsubscribeRef.current();
+    };
+  }, [roomId, player]);
+  
+  // lastUpdated timestamp to avoid sync feedback loops.
+  const updateRoomPlayback = async (data) => {
+    if (!roomId) return;
+    await updateDoc(doc(db, 'rooms', roomId), {
+      playback: {
+        ...data,
+        lastUpdated: Date.now(),
+        lastUpdatedBy: user.uid,
+      },
+    });
+  };
+  
+  // Custom control handlers
+  const togglePlayPause = async () => {
+    if (!player) return;
+  
+    const isNowPlaying = !isPlaying;
+    isNowPlaying ? player.playVideo() : player.pauseVideo();
+    setIsPlaying(isNowPlaying);
+    setCurrentTime(player.getCurrentTime());
+  
+    try {
+      await updateRoomPlayback({
+        isPlaying: isNowPlaying,
+        currentTime: player.getCurrentTime(),
+        playbackRate,
+        volume: player.getVolume(),
+        isMuted: player.isMuted()
+      });
+    } catch (error) {
+      console.error('Sync error:', error);
+    }
+  };
+  
+
+  const handleSeek = async (seconds) => {
+    if (!player || typeof player.getCurrentTime !== 'function') return;
+    
+    const boundedTime = Math.max(0, Math.min(seconds, duration));
+    try {
+      player.seekTo(boundedTime, true);
+      setCurrentTime(boundedTime);
+  
+      await updateRoomPlayback({
+        isPlaying,
+        currentTime: boundedTime,
+        playbackRate,
+        volume: player.getVolume(),
+        isMuted: player.isMuted()
+      });
+    } catch (error) {
+      console.error('Seek error:', error);
     }
   };
 
-  const handleSeek = (seconds) => {
-    if (player) {
-      player.seekTo(seconds, true);
-      setCurrentTime(seconds);
-    }
-  };
 
-  const handleSeekBy = (seconds) => {
-    if (player) {
+  const handleSeekBy = async (seconds) => {
+    if (!player || typeof player.getCurrentTime !== 'function') return;
+  
+    try {
       const newTime = Math.max(0, Math.min(player.getCurrentTime() + seconds, duration));
-      handleSeek(newTime);
+      player.seekTo(newTime, true);
+      setCurrentTime(newTime);
+  
+      await updateRoomPlayback({
+        isPlaying,
+        currentTime: newTime,
+        playbackRate,
+        volume: player.getVolume(),
+        isMuted: player.isMuted()
+      });
+    } catch (error) {
+      console.error('Seek error:', error);
     }
   };
+  
 
-  const handleVolumeChange = (e) => {
-    if (player) {
-      const volume = parseInt(e.target.value);
-      player.setVolume(volume);
-      setPreviousVolume(volume);
-      setIsMuted(volume === 0);
-    }
+  const handleVolumeChange = async (event) => {
+    const newVolume = parseInt(event.target.value);
+    setVolume(newVolume);
+    player.setVolume(newVolume);
+  
+    await updateRoomPlayback({
+      isPlaying,
+      currentTime: player.getCurrentTime(),
+      playbackRate,
+      volume: newVolume,
+      isMuted: player.isMuted()
+    });
   };
+  
 
   const handleSeekBarHover = (e) => {
     const seekBar = e.currentTarget;
@@ -276,26 +387,54 @@ function VideoPlayer({ videoUrl }) {
     }
   };
 
-  const toggleMute = () => {
-    if (player) {
-      if (isMuted) {
-        player.unMute();
-        player.setVolume(previousVolume);
-      } else {
-        setPreviousVolume(player.getVolume());
-        player.mute();
-      }
-      setIsMuted(!isMuted);
+
+  const toggleMute = async () => {
+    if (!player) return;
+    const shouldMute = !isMuted;
+    
+    shouldMute ? player.mute() : player.unMute();
+    setIsMuted(shouldMute);
+    
+    if (!shouldMute) {
+      player.setVolume(previousVolume);
+    } else {
+      setPreviousVolume(player.getVolume());
+    }
+  
+    try {
+      await updateRoomPlayback({
+        isPlaying,
+        currentTime: player.getCurrentTime(),
+        playbackRate,
+        volume: player.getVolume(),
+        isMuted: shouldMute
+      });
+    } catch (error) {
+      console.error('Sync error:', error);
     }
   };
+  
 
-  const handleSpeedChange = (speed) => {
+  const handleSpeedChange = async (speed) => {
     if (player) {
       player.setPlaybackRate(speed);
       setPlaybackRate(speed);
+
+      try {
+        await updateRoomPlayback({
+          isPlaying,
+          currentTime: player.getCurrentTime(),
+          playbackRate: speed,
+          volume: player.getVolume(),
+          isMuted: player.isMuted()
+        });
+      } catch (error) {
+        console.error('Sync error:', error);
+      }
     }
     setShowSpeedMenu(false);
   };
+  
 
   const handleQualityChange = (quality) => {
     if (player) {

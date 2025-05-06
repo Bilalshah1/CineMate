@@ -16,7 +16,7 @@ import { deleteRoomIfCreator } from '../utils/roomUtils';
 import VideoPlayer from './VideoPlayer';
 
 // 2b. Firebase-specific functions (if separated for clarity)
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 
 // 5. Static resources (SVGs)
 import go_svg from '../assets/SVGs/room_SVGs/go_svg.svg';
@@ -45,58 +45,77 @@ function Room() {
   const [videoUrl, setVideoUrl] = useState('https://youtu.be/5GgfjmqKbM8');
   const [isWhosHereModal, setWhosHereModal] = useState(false);
   
+
   const { user } = useAuth();
   const { roomId } = useParams();
   const navigate = useNavigate();
 
   const [room, setRoom] = useState(null);
-  useEffect(() => {
-    const fetchRoom = async () => {
-      const roomRef = doc(db, 'rooms', roomId);
-      const roomSnap = await getDoc(roomRef);
-      if (roomSnap.exists()) {
-        setRoom(roomSnap.data());
-      }
-    };
+  const [memberUsers, setMemberUsers] = useState([]);
   
-    fetchRoom();
-  }, [roomId]);
+  useEffect(() => {
+    if (!user) return;
 
-  // Mock users data
-  const [users, setUsers] = useState([
-    { id: 1, name: 'User1' },
-    { id: 2, name: 'User2' },
-    { id: 3, name: 'User3' }
-  ]);
+    const roomRef = doc(db, 'rooms', roomId);
 
-  // const handleUrlSubmit = () => {
-  //   const input = document.querySelector('input[type="text"]');
-  //   const url = input.value.trim();
-    
-  //   alert(url);
+    const unsubscribe = onSnapshot(roomRef, async (roomSnap) => {
+      if (roomSnap.exists()) {
+        const roomData = roomSnap.data();
 
-  //   // Improved regex
-  //   const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([A-Za-z0-9_-]{11})/;
-    
-  //   if (youtubeRegex.test(url)) {
-  //     alert('IF');
-  //     const videoId = url.match(youtubeRegex)[4];
-  //     alert(videoId);
-  //     setVideoUrl(`https://www.youtube.com/watch?v=${videoId}`);
-  //     alert(videoUrl);
-  //   } else {
-  //     alert('ELSE');
-  //     input.setCustomValidity('Enter a valid YouTube video URL.');
-  //     input.reportValidity(); 
-  //     input.setCustomValidity('');
-  //   }
-  //   alert('handleUrlSubmit Completed.');
-  // };
+        // Update local room state
+        setRoom(roomData);
 
-  const handleRemoveUser = (userId) => {
-    // Placeholder function for user removal
-    setUsers(users.filter(user => user.id !== userId));
+        // Immediately redirect if current user was removed
+        if (user && !roomData.members.includes(user.uid)) {
+          alert("You've been removed from the room.");
+          navigate('/home');
+          return;
+        }
+
+        if (roomData.members && roomData.members.length > 0) {
+          const userDocs = await Promise.all(
+            roomData.members.map(uid => getDoc(doc(db, 'users', uid)))
+          );
+
+          const usersData = userDocs
+            .filter(doc => doc.exists())
+            .map(doc => ({ uid: doc.id, ...doc.data() }));
+
+          setMemberUsers(usersData);
+        } else {
+          setMemberUsers([]);
+        }
+      } else {
+        navigate('/home');
+      }
+    });
+
+    return () => unsubscribe();
+  }, [roomId, navigate, user]);
+  
+  const handleRemoveUser = async (userIdToRemove) => {
+    if (!room || user?.uid !== room.ownerUid) return;
+  
+    const updatedMembers = room.members.filter(uid => uid !== userIdToRemove);
+    const roomRef = doc(db, 'rooms', roomId);
+  
+    try {
+      await setDoc(roomRef, { members: updatedMembers }, { merge: true });
+      setRoom(prev => ({ ...prev, members: updatedMembers }));
+  
+      // Fetch updated user data
+      const userDocs = await Promise.all(
+        updatedMembers.map(uid => getDoc(doc(db, 'users', uid)))
+      );
+      const usersData = userDocs
+        .filter(doc => doc.exists())
+        .map(doc => ({ uid: doc.id, ...doc.data() }));
+      setMemberUsers(usersData);
+    } catch (error) {
+      console.error("Error removing user:", error);
+    }
   };
+  
 
   const handleDeleteRoom = async () => {
     if (!user || !room) return;
@@ -129,17 +148,8 @@ function Room() {
               onChange={(e) => setVideoUrl(e.target.value)}
               onInput={(e) => e.target.value = e.target.value.trim()}
             />
-            {/*
-            <button 
-              onClick={handleUrlSubmit}
-              className='border-l border-gray-700 pl-2 pr-1'
-            >
-              <img src={go_svg} alt="Submit" className='w-5 h-5 ml-1 hover:cursor-pointer hover:scale-110 transition-all duration-200'/>
-            </button>
-            */}
           </div>
         </div>
-
         {/* Action Buttons */}
         <div className='flex justify-between w-full md:w-auto gap-2'>
           {/* Room ID Copy Button */}
@@ -224,18 +234,31 @@ function Room() {
             >
               <span id="whos-here-heading" className='text-xl font-semibold text-gray-900 mb-4'>Who's Here</span>
               <div className="w-full space-y-2">
-                {users.map(user => (
-                  <div key={user.id} className="flex items-center justify-between bg-white/80 p-2 rounded-lg">
-                    <span className="text-gray-800">{user.name}</span>
-                    <button 
-                      onClick={() => handleRemoveUser(user.id)}
-                      className="text-red-600 hover:text-red-800 transition-colors"
-                      aria-label={`Remove ${user.name}`}
-                    >
-                      <img src={removePerson_svg} alt="Remove" className="w-5 h-5"/>
-                    </button>
-                  </div>
-                ))}
+                {memberUsers.length === 0 ? (
+                  <p className="text-center text-gray-700">No members found.</p>
+                ) : (
+                  memberUsers.map(member => {
+                    const isCreator = room?.ownerUid === member.uid;
+                    const isCurrentUser = user?.uid === member.uid;
+                    const canRemove = user?.uid === room?.ownerUid && !isCreator;
+
+                    return (
+                      <div key={member.uid} className="flex items-center justify-between bg-white/80 p-2 rounded-lg">
+                        <span className="text-gray-800">
+                          {member.displayName || 'Unnamed'} {isCurrentUser ? '(me)' : ''}
+                        </span>
+                        <button 
+                          onClick={() => handleRemoveUser(member.uid)}
+                          className={`text-red-600 hover:text-red-800 transition-colors ${!canRemove ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          aria-label={`Remove ${member.displayName}`}
+                          disabled={!canRemove}
+                        >
+                          <img src={removePerson_svg} alt="Remove" className="w-5 h-5 hover:cursor-pointer"/>
+                        </button>
+                      </div>
+                    );
+                  })
+                )}
               </div>
             </motion.div>
           </motion.div>

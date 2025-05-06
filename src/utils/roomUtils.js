@@ -26,6 +26,15 @@ export async function createRoom(user) {
         createdAt: new Date(),
         members: [user.uid],
         videoUrl: '', // default empty
+        playback: {
+            isPlaying: false,
+            currentTime: 0,
+            lastUpdated: Date.now(),
+            lastUpdatedBy: user.uid,
+            playbackRate: 1,
+            volume: 50,
+            isMuted: false
+        }
     };
 
     await setDoc(doc(db, 'rooms', roomId), roomData);
