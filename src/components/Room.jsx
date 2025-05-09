@@ -14,6 +14,7 @@ import { deleteRoomIfCreator } from '../utils/roomUtils';
 
 // 6. Local components
 import VideoPlayer from './VideoPlayer';
+import LiveChat from './LiveChat';
 
 // 2b. Firebase-specific functions (if separated for clarity)
 import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
@@ -195,12 +196,7 @@ function Room() {
       {/* Video and Chat Section */}
       <div className='flex flex-col lg:flex-row justify-between gap-4'>
         <VideoPlayer videoUrl={videoUrl}/>
-        <div className='mt-24 lg:mt-2 h-60 md:h-80 md:w-[58%] w-full lg:w-1/3 bg-gradient-to-br from-yellow-200 to-yellow-400 rounded-lg shadow-md p-3 border border-yellow-600'>
-          <h3 className='text-lg font-semibold text-gray-800 mb-2'>Chat</h3>
-          <div className='h-full bg-white/50 rounded p-2 text-center text-gray-600'>
-            Chat functionality coming soon
-          </div>
-        </div>
+        <LiveChat/>
       </div>
 
       {/* Who's Here Modal */}

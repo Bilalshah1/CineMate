@@ -103,6 +103,7 @@ function VideoPlayer({ videoUrl }) {
     return () => {
       if (player) {
         player.destroy();
+        setPlayer(null);
       }
       window.onYouTubeIframeAPIReady = null;
       clearTimeout(controlsTimeoutRef.current);
@@ -246,10 +247,13 @@ function VideoPlayer({ videoUrl }) {
   
       const playback = docSnap.data().playback;
       if (!playback || !player) return;
+
+      // Avoid feedback loops 
+      if (playback.lastUpdatedBy === user.uid && 
+       Date.now() - playback.lastUpdated < 500) return;
   
-      // Avoid feedback loops but replace this with user id check and ignoring self done things 
-      if (Date.now() - playback.lastUpdated < 5) return;
-  
+      if (typeof player.getDuration !== 'function') return;
+
       setPlaybackRate(playback.playbackRate);
       player.setPlaybackRate(playback.playbackRate);
   
@@ -271,7 +275,7 @@ function VideoPlayer({ videoUrl }) {
     return () => {
       if (unsubscribeRef.current) unsubscribeRef.current();
     };
-  }, [roomId, player]);
+  }, [roomId, player?.getCurrentTime]);
   
   // lastUpdated timestamp to avoid sync feedback loops.
   const updateRoomPlayback = async (data) => {
@@ -286,15 +290,14 @@ function VideoPlayer({ videoUrl }) {
   };
   
   // Custom control handlers
+
   const togglePlayPause = async () => {
     if (!player) return;
   
     const isNowPlaying = !isPlaying;
-    isNowPlaying ? player.playVideo() : player.pauseVideo();
-    setIsPlaying(isNowPlaying);
-    setCurrentTime(player.getCurrentTime());
-  
+    
     try {
+      // First update Firestore to maintain sync order
       await updateRoomPlayback({
         isPlaying: isNowPlaying,
         currentTime: player.getCurrentTime(),
@@ -302,11 +305,17 @@ function VideoPlayer({ videoUrl }) {
         volume: player.getVolume(),
         isMuted: player.isMuted()
       });
+      
+      // Then update local player state
+      isNowPlaying ? player.playVideo() : player.pauseVideo();
+      setIsPlaying(isNowPlaying);
+      setCurrentTime(player.getCurrentTime());
     } catch (error) {
       console.error('Sync error:', error);
     }
   };
-  
+
+
 
   const handleSeek = async (seconds) => {
     if (!player || typeof player.getCurrentTime !== 'function') return;
@@ -629,4 +638,6 @@ export default VideoPlayer;
 
 // TODO
 // Mobile screen: video controls not showing after auto-hidden after 3 seconds in full-screen mode.
-// Both screens: 'position: 'relative' Issue.   
+// Both screens: 'position: 'relative' Issue. 
+// Pause Button Synchronization Issue.
+// Video URL Synchronization not implemented.  
