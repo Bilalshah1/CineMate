@@ -27,9 +27,9 @@ function Header() {
 
       {/* Desktop Navigation */}
       <ul className='w-[75%] hidden gap-10 mx-10 md:flex items-center justify-between text-lg'>
-        <li><a href="#" className='inline-block transform transition-transform duration-200 hover:scale-110 hover:shadow-2xl p-1'>Features</a></li>
-        <li><a href="#" className='inline-block transform transition-transform duration-200 hover:scale-110 hover:shadow-2xl p-1'>How it Works</a></li>
-        <li><a href="#" className='inline-block transform transition-transform duration-200 hover:scale-110 hover:shadow-2xl p-1'>Support</a></li>
+        <li><a href="/home#features" className='inline-block transform transition-transform duration-200 hover:scale-110 hover:shadow-2xl p-1'>Features</a></li>
+        <li><a href="/home#how-it-works" className='inline-block transform transition-transform duration-200 hover:scale-110 hover:shadow-2xl p-1'>How it Works</a></li>
+        <li><a href="/home#support" className='inline-block transform transition-transform duration-200 hover:scale-110 hover:shadow-2xl p-1'>Support</a></li>
         <li>
           <Link to="/profile">
             <img className='md:w-9 md:h-9 transform transition-transform duration-200 hover:scale-110' src={bx_user} alt="User Icon" />
@@ -64,13 +64,13 @@ function Header() {
               ✕
             </button>
           </div>
-          <a href="#" className='text-xl transform transition-transform duration-200 hover:scale-105 p-1' onClick={toggleMenu}>
+          <a href="/home#features" className='text-xl transform transition-transform duration-200 hover:scale-105 p-1' onClick={toggleMenu}>
             Features
           </a>
-          <a href="#" className='text-xl transform transition-transform duration-200 hover:scale-105 p-1' onClick={toggleMenu}>
+          <a href="/home#how-it-works" className='text-xl transform transition-transform duration-200 hover:scale-105 p-1' onClick={toggleMenu}>
             How it Works
           </a>
-          <a href="#" className='text-xl transform transition-transform duration-200 hover:scale-105 p-1' onClick={toggleMenu}>
+          <a href="/home#support" className='text-xl transform transition-transform duration-200 hover:scale-105 p-1' onClick={toggleMenu}>
             Support
           </a>
           <Link to="/profile" className='text-xl transform transition-transform duration-200 hover:scale-105 p-1' onClick={toggleMenu}>

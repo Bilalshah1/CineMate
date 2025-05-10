@@ -13,9 +13,16 @@ import LiveChat from './components/LiveChat';
 import VideoPlayer from './components/VideoPlayer';
 import ProfileEdit from './components/ProfileEdit';
 
+import useScrollToHash from './utils/useScrollToHash';
+function ScrollToHashWrapper() {
+  useScrollToHash();
+  return null;
+}
+
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToHashWrapper /> {/*Wrapper component*/}
       <Routes>
         <Route 
           path="/" 
@@ -28,10 +35,10 @@ function App() {
             <div className="flex flex-col min-h-screen">
               <Header />
               <main className="flex-grow">
-                <Hero/>
-                <Features/>
-                <Working/>
-                <Support/>
+                <Hero />
+                <div id="features"><Features /></div>
+                <div id="how-it-works"><Working /></div>
+                <div id="support"><Support /></div>
               </main>
               <Footer />
             </div>
@@ -65,7 +72,6 @@ function App() {
     </BrowserRouter>
   );
 }
-
 
 
 export default App;
