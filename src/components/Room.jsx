@@ -17,7 +17,7 @@ import VideoPlayer from './VideoPlayer';
 import LiveChat from './LiveChat';
 
 // 2b. Firebase-specific functions (if separated for clarity)
-import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 
 // 5. Static resources (SVGs)
 import go_svg from '../assets/SVGs/room_SVGs/go_svg.svg';
@@ -27,20 +27,6 @@ import link_svg from '../assets/SVGs/room_SVGs/link_svg.svg';
 import removePerson_svg from '../assets/SVGs/room_SVGs/removePerson_svg.svg';
 import copy_svg from '../assets/SVGs/hero_SVGs/copy_svg.svg';
 
-
-/*
-Some Video-links
-1. Rick Astley - Never Gonna Give You Up (Official Music Video)
-https://youtu.be/dQw4w9WgXcQ
-2. Carla Chamoun - Khedni Maak - Cover
-https://youtu.be/5GgfjmqKbM8 
-3. Abeer Nehme - Baadni Bhebak
-https://youtu.be/a9y85vsWhu4
-4. Sami Yusuf - Nasimi (Expo Version) [Live] 
-https://youtu.be/BdoGhpoNu84
-5. Nancy Ajram Feat K'naan - Waving Flag (Official Music Video)
-https://youtu.be/fSo2Ll6YTwc
-*/
 
 function Room() {
   const [videoUrl, setVideoUrl] = useState('https://youtu.be/5GgfjmqKbM8');
@@ -54,6 +40,8 @@ function Room() {
   const [room, setRoom] = useState(null);
   const [memberUsers, setMemberUsers] = useState([]);
   
+
+  // Grok
   useEffect(() => {
     if (!user) return;
 
@@ -65,6 +53,11 @@ function Room() {
 
         // Update local room state
         setRoom(roomData);
+
+        // Sync videoUrl from Firestore
+        if (roomData.videoUrl && roomData.videoUrl !== videoUrl) {
+          setVideoUrl(roomData.videoUrl);
+        }
 
         // Immediately redirect if current user was removed
         if (user && !roomData.members.includes(user.uid)) {
@@ -92,7 +85,9 @@ function Room() {
     });
 
     return () => unsubscribe();
-  }, [roomId, navigate, user]);
+  }, [roomId, navigate, user, videoUrl]);
+
+
   
   const handleRemoveUser = async (userIdToRemove) => {
     if (!room || user?.uid !== room.ownerUid) return;
@@ -117,7 +112,6 @@ function Room() {
     }
   };
   
-
   const handleDeleteRoom = async () => {
     if (!user || !room) return;
   
@@ -128,6 +122,33 @@ function Room() {
       alert(`Error: ${result.message}`);
     }
   };
+
+
+  // Grok
+  const handleVideoUrlChange = async (e) => {
+    const newUrl = e.target.value.trim();
+    setVideoUrl(newUrl);
+  
+    if (roomId) {
+      try {
+        await updateDoc(doc(db, 'rooms', roomId), {
+          videoUrl: newUrl,
+          playback: {
+            isPlaying: false,
+            currentTime: 0,
+            playbackRate: 1,
+            volume: 50,
+            isMuted: false, 
+            lastUpdated: Date.now(),
+            lastUpdatedBy: user.uid
+          }
+        });
+      } catch (error) {
+        console.error("Error updating video URL:", error);
+      }
+    }
+  };
+
 
   return (
     <div className="p-2 md:px-4">
@@ -146,8 +167,7 @@ function Room() {
               placeholder='e.g., https://youtu.be/dQw4w9WgXcQ'
               className='flex-1 text-center text-gray-800 text-sm md:text-base font-medium bg-transparent outline-none placeholder-gray-500 px-2'
               title='Enter a valid YouTube video URL (e.g., https://youtu.be/dQw4w9WgXcQ)'
-              onChange={(e) => setVideoUrl(e.target.value)}
-              onInput={(e) => e.target.value = e.target.value.trim()}
+              onChange={handleVideoUrlChange}
             />
           </div>
         </div>
@@ -195,7 +215,7 @@ function Room() {
 
       {/* Video and Chat Section */}
       <div className='flex flex-col lg:flex-row justify-between gap-4'>
-        <VideoPlayer videoUrl={videoUrl}/>
+        <VideoPlayer videoUrl={videoUrl} key={videoUrl}/>
         <LiveChat roomId={roomId}/>
       </div>
 
@@ -267,7 +287,5 @@ function Room() {
 export default Room
 
 // TODO
-// The 'goto' button mis-behaving therefore commented-out.
 // Un-intuitive URL-change functionality
-// Even upon successful updation of videoUrl, new video is not loading.
 // Room retained in Firebase storage permanetly. (Should be solved)

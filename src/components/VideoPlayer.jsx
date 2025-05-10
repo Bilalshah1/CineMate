@@ -5,7 +5,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 
 // 4. Authentication and Firebase context
-import { db } from '../firebase/firebaseConfig'; 
+import { db } from '../firebase/firebaseConfig';
 import { useAuth } from '../auth/AuthContext';
 
 // 2b. Firebase-specific functions (if separated for clarity)
@@ -48,7 +48,6 @@ const getVideoId = (url) => {
 function VideoPlayer({ videoUrl }) {
   const videoId = getVideoId(videoUrl);
   const { user } = useAuth();
-  // console.log('[DEBUG]',user);
   const { roomId } = useParams();
 
 
@@ -85,8 +84,17 @@ function VideoPlayer({ videoUrl }) {
   ];
 
 
-  // Load YouTube IFrame API script dynamically
+  // Grok
   useEffect(() => {
+    // Reset player state when videoId changes
+    setPlayer(null);
+    setCurrentTime(0);
+    setDuration(0);
+    setIsPlaying(false);
+    setPlaybackRate(1);
+    setVolume(50);
+    setIsMuted(false);
+
     if (!window.YT) {
       const tag = document.createElement('script');
       tag.src = 'https://www.youtube.com/iframe_api';
@@ -110,6 +118,7 @@ function VideoPlayer({ videoUrl }) {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
     };
   }, [videoId]);
+
 
   // Handle fullscreen change events
   useEffect(() => {
@@ -155,7 +164,6 @@ function VideoPlayer({ videoUrl }) {
 
     const resetControlsTimeout = () => {
       document.addEventListener('touchstart', (e) => {
-        console.log('Touch at:', e.target);
       }, { capture: true });
 
       clearTimeout(controlsTimeoutRef.current);
@@ -180,9 +188,9 @@ function VideoPlayer({ videoUrl }) {
     }
   }, [isFullscreen]);
 
-  // Initialize the YouTube player
-  const initializePlayer = () => {
 
+  // Grok
+  const initializePlayer = () => {
     const playerHeight = '100%';
     const playerWidth = '100%';
 
@@ -196,13 +204,16 @@ function VideoPlayer({ videoUrl }) {
         rel: 0,
         showinfo: 0,
         modestbranding: 1,
-        origin: window.location.origin, // Added this to match local origin
+        origin: window.location.origin,
+        start: 0 // Ensure video starts from beginning
       },
       events: {
         onReady: (event) => {
           setPlayer(event.target);
           setDuration(event.target.getDuration());
           event.target.setPlaybackRate(1);
+          event.target.playVideo(); // Start playing immediately
+          setIsPlaying(true);
         },
         onStateChange: (event) => {
           if (event.data === window.YT.PlayerState.PLAYING) {
@@ -214,8 +225,8 @@ function VideoPlayer({ videoUrl }) {
         },
       },
     });
-    // setPlayer(newPlayer);
   };
+
 
   // Update current time for seek bar
   useEffect(() => {
@@ -240,43 +251,58 @@ function VideoPlayer({ videoUrl }) {
 
   // Listener to the room doc using onSnapshot to reflect updates from Firestore
   useEffect(() => {
-    if (!roomId) return;
-  
+    if (!roomId || !player) return;
+
     unsubscribeRef.current = onSnapshot(doc(db, 'rooms', roomId), (docSnap) => {
       if (!docSnap.exists()) return;
-  
-      const playback = docSnap.data().playback;
-      if (!playback || !player) return;
 
-      // Avoid feedback loops 
+      const playback = docSnap.data().playback;
+      if (!playback) return;
+
+      // Avoid feedback loops
       if (playback.lastUpdatedBy === user.uid && 
-       Date.now() - playback.lastUpdated < 500) return;
-  
+          Date.now() - playback.lastUpdated < 500) return;
+
       if (typeof player.getDuration !== 'function') return;
 
-      setPlaybackRate(playback.playbackRate);
-      player.setPlaybackRate(playback.playbackRate);
-  
+      // Update playback rate
+      if (playback.playbackRate !== player.getPlaybackRate()) {
+        setPlaybackRate(playback.playbackRate);
+        player.setPlaybackRate(playback.playbackRate);
+      }
+
+      // Sync current time if out of sync
       if (Math.abs(playback.currentTime - player.getCurrentTime()) > 1) {
-        player.seekTo(playback.currentTime);
+        player.seekTo(playback.currentTime, true);
+        setCurrentTime(playback.currentTime);
       }
-  
-      if (playback.isPlaying && !isPlaying) {
-        player.playVideo();
-      } else if (!playback.isPlaying && isPlaying) {
-        player.pauseVideo();
+
+      // Sync play/pause state
+      if (playback.isPlaying !== isPlaying) {
+        if (playback.isPlaying) {
+          player.playVideo();
+          setIsPlaying(true);
+        } else {
+          player.pauseVideo();
+          setIsPlaying(false);
+        }
       }
-  
+
+      // Sync volume and mute state
       player.setVolume(playback.volume);
-      if (playback.isMuted) player.mute();
-      else player.unMute();
+      if (playback.isMuted !== player.isMuted()) {
+        if (playback.isMuted) player.mute();
+        else player.unMute();
+        setIsMuted(playback.isMuted);
+      }
     });
-  
+
     return () => {
       if (unsubscribeRef.current) unsubscribeRef.current();
     };
-  }, [roomId, player?.getCurrentTime]);
-  
+  }, [roomId, player, isPlaying, user.uid]);
+
+
   // lastUpdated timestamp to avoid sync feedback loops.
   const updateRoomPlayback = async (data) => {
     if (!roomId) return;
@@ -288,14 +314,14 @@ function VideoPlayer({ videoUrl }) {
       },
     });
   };
-  
+
   // Custom control handlers
 
   const togglePlayPause = async () => {
     if (!player) return;
-  
+
     const isNowPlaying = !isPlaying;
-    
+
     try {
       // First update Firestore to maintain sync order
       await updateRoomPlayback({
@@ -305,7 +331,7 @@ function VideoPlayer({ videoUrl }) {
         volume: player.getVolume(),
         isMuted: player.isMuted()
       });
-      
+
       // Then update local player state
       isNowPlaying ? player.playVideo() : player.pauseVideo();
       setIsPlaying(isNowPlaying);
@@ -316,15 +342,14 @@ function VideoPlayer({ videoUrl }) {
   };
 
 
-
   const handleSeek = async (seconds) => {
     if (!player || typeof player.getCurrentTime !== 'function') return;
-    
+
     const boundedTime = Math.max(0, Math.min(seconds, duration));
     try {
       player.seekTo(boundedTime, true);
       setCurrentTime(boundedTime);
-  
+
       await updateRoomPlayback({
         isPlaying,
         currentTime: boundedTime,
@@ -340,12 +365,12 @@ function VideoPlayer({ videoUrl }) {
 
   const handleSeekBy = async (seconds) => {
     if (!player || typeof player.getCurrentTime !== 'function') return;
-  
+
     try {
       const newTime = Math.max(0, Math.min(player.getCurrentTime() + seconds, duration));
       player.seekTo(newTime, true);
       setCurrentTime(newTime);
-  
+
       await updateRoomPlayback({
         isPlaying,
         currentTime: newTime,
@@ -357,13 +382,13 @@ function VideoPlayer({ videoUrl }) {
       console.error('Seek error:', error);
     }
   };
-  
+
 
   const handleVolumeChange = async (event) => {
     const newVolume = parseInt(event.target.value);
     setVolume(newVolume);
     player.setVolume(newVolume);
-  
+
     await updateRoomPlayback({
       isPlaying,
       currentTime: player.getCurrentTime(),
@@ -372,7 +397,7 @@ function VideoPlayer({ videoUrl }) {
       isMuted: player.isMuted()
     });
   };
-  
+
 
   const handleSeekBarHover = (e) => {
     const seekBar = e.currentTarget;
@@ -400,16 +425,16 @@ function VideoPlayer({ videoUrl }) {
   const toggleMute = async () => {
     if (!player) return;
     const shouldMute = !isMuted;
-    
+
     shouldMute ? player.mute() : player.unMute();
     setIsMuted(shouldMute);
-    
+
     if (!shouldMute) {
       player.setVolume(previousVolume);
     } else {
       setPreviousVolume(player.getVolume());
     }
-  
+
     try {
       await updateRoomPlayback({
         isPlaying,
@@ -422,7 +447,7 @@ function VideoPlayer({ videoUrl }) {
       console.error('Sync error:', error);
     }
   };
-  
+
 
   const handleSpeedChange = async (speed) => {
     if (player) {
@@ -443,7 +468,7 @@ function VideoPlayer({ videoUrl }) {
     }
     setShowSpeedMenu(false);
   };
-  
+
 
   const handleQualityChange = (quality) => {
     if (player) {
@@ -546,7 +571,7 @@ function VideoPlayer({ videoUrl }) {
                 className="m-1 md:m-2 hover:cursor-pointer hover:scale-105 transition-transform active:scale-95"
                 aria-label={isMuted ? "Unmute" : "Mute"}
               >
-                <img src={isMuted ? mute_svg : volume_svg} alt={isMuted ? "Unmute" : "Mute"} className="w-6 h-6 md:w-5 md:h-5"/>
+                <img src={isMuted ? mute_svg : volume_svg} alt={isMuted ? "Unmute" : "Mute"} className="w-6 h-6 md:w-5 md:h-5" />
               </button>
               <input
                 type="range"
@@ -638,6 +663,4 @@ export default VideoPlayer;
 
 // TODO
 // Mobile screen: video controls not showing after auto-hidden after 3 seconds in full-screen mode.
-// Both screens: 'position: 'relative' Issue. 
-// Pause Button Synchronization Issue.
-// Video URL Synchronization not implemented.  
+// Both screens: 'position: 'relative' Issue.  
