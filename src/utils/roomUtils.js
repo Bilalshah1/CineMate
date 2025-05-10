@@ -25,7 +25,7 @@ export async function createRoom(user) {
         ownerUid: user.uid,
         createdAt: new Date(),
         members: [user.uid],
-        videoUrl: '', // default empty
+        videoUrl: 'https://youtu.be/5GgfjmqKbM8',
         playback: {
             isPlaying: false,
             currentTime: 0,

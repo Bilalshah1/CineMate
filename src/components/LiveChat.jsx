@@ -59,8 +59,6 @@ const messageStyles = {
 function LiveChat({ roomId }) {
 
   const { user } = useAuth();
-  console.log(user);
-  console.log(roomId);
 
   const [messagesArray, setMessagesArray] = useState([]);
   // Replace the current useEffect for loading messages with this:
@@ -83,7 +81,6 @@ function LiveChat({ roomId }) {
 
     return () => unsubscribe(); // Clean up the listener on unmount
   }, [roomId]);
-  console.log(messagesArray);
 
   const messagesEndRef = useRef(null);
   const scrollToBottom = () => {
@@ -234,7 +231,7 @@ function LiveChat({ roomId }) {
                   <input 
                     type="text" 
                     required
-                    maxlength="100"
+                    maxLength="100"
                     className="w-full h-8 px-3 rounded-md bg-white text-gray-800 outline-none"
                   />
                 </div>

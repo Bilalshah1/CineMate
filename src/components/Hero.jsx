@@ -20,7 +20,6 @@ import preview from '../assets/mixkit_clapperboard.mp4';
 
 function Hero() {
   const { user, logout } = useAuth();
-  console.log('Current user:', user);
 
   const navigate = useNavigate()
 
