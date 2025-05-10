@@ -196,7 +196,7 @@ function Room() {
       {/* Video and Chat Section */}
       <div className='flex flex-col lg:flex-row justify-between gap-4'>
         <VideoPlayer videoUrl={videoUrl}/>
-        <LiveChat/>
+        <LiveChat roomId={roomId}/>
       </div>
 
       {/* Who's Here Modal */}

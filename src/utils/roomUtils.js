@@ -1,5 +1,5 @@
 import { db } from '../firebase/firebaseConfig';
-import { doc, setDoc, getDoc, deleteDoc } from 'firebase/firestore';
+import { doc, collection, setDoc, getDoc, addDoc, deleteDoc } from 'firebase/firestore';
 
 
 // Generates a random 8-character uppercase hexadecimal Room ID
@@ -38,6 +38,15 @@ export async function createRoom(user) {
     };
 
     await setDoc(doc(db, 'rooms', roomId), roomData);
+
+    // Initial message to 'messages' subcollection
+    const messagesRef = collection(db, 'rooms', roomId, 'messages');
+    await addDoc(messagesRef, {
+        senderId: user.uid,
+        message: 'Stay tuned to the vibe—send live messages to your friends.',
+        timestamp: new Date()
+    });
+
     return roomId;
 }
 
