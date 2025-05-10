@@ -43,6 +43,7 @@ export async function createRoom(user) {
     const messagesRef = collection(db, 'rooms', roomId, 'messages');
     await addDoc(messagesRef, {
         senderId: user.uid,
+        senderName: user.displayName,
         message: 'Stay tuned to the vibe—send live messages to your friends.',
         timestamp: new Date()
     });

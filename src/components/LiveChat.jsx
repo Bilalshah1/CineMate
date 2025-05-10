@@ -61,7 +61,7 @@ function LiveChat({ roomId }) {
   const { user } = useAuth();
 
   const [messagesArray, setMessagesArray] = useState([]);
-  // Replace the current useEffect for loading messages with this:
+
   useEffect(() => {
     if (!roomId) return;
 
@@ -117,7 +117,7 @@ function LiveChat({ roomId }) {
   
     try {
       event.target.reset();
-      await sendMessage(roomId, user.uid, message); 
+      await sendMessage(roomId, user.uid, user.displayName, message); 
       // event.target.reset();
     } catch (error) {
       console.error('Failed to send message:', error);
@@ -206,7 +206,7 @@ function LiveChat({ roomId }) {
           <div className="flex-1 overflow-y-auto">
             {messagesArray.map((message) => {
               const isSent = message.senderId === user?.uid;
-              const username = isSent ? '(Me)' : message.senderId; // Replace with actual displayName if available
+              const username = isSent ? '(Me)' : message.senderName;
               
               return (
                 <div 
