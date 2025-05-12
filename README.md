@@ -11,11 +11,12 @@ CineMate is a **social streaming web application** that allows users to watch Yo
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Usage Guide](#usage-guide)
-- [Project Flow](#project-flow)
 - [Deployment](#deployment)
 - [Future Enhancements](#future-enhancements)
 
 ---
+
+<a id="features"></a>
 
 ## ✨ Features
 
@@ -68,6 +69,8 @@ CineMate is a **social streaming web application** that allows users to watch Yo
 
 ---
 
+<a id="tech-stack"></a>
+
 ## 🧰 Tech Stack
 
 ### Frontend
@@ -93,6 +96,8 @@ CineMate is a **social streaming web application** that allows users to watch Yo
   - Cloud-based Firestore means **internet access is required** for all features
 
 ---
+
+<a id="usage-guide"></a>
 
 ## 📖 Usage Guide
 
@@ -131,3 +136,39 @@ CineMate is a **social streaming web application** that allows users to watch Yo
   - **Delete** the room entirely
 
 ---
+
+<a id="deployment"></a>
+
+## ☁️ Deployment
+
+This project is deployed and live at:
+
+🚀 [https://cinemate-2025.web.app](https://cinemate-2025.web.app)
+
+> Firebase Hosting provides seamless integration with Firestore and Authentication services.
+
+---
+
+<a id="future-enhancements"></a>
+
+## 🚧 Future Enhancements
+
+Planned improvements:
+
+- 🎞 **Support for additional video platforms** (e.g., Vimeo, Twitch)
+- 🔁 **Synchronize emoji reactions** across all participants
+- 📈 **Scalability improvements** (e.g., pagination, optimized state management)
+- 📂 **Room history** and video playlists
+- 📱 **UI/UX** and other accessibility enhancements
+
+---
+
+## 🙌 Contributing
+
+Pull requests are welcome! If you have ideas or improvements, please open an issue first to discuss your proposal.
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for details.
