@@ -2,9 +2,7 @@
 
 CineMate is a **social streaming web application** that allows users to watch YouTube videos **together in real time** while chatting, reacting, and engaging with friends — all in a shared virtual room.
 
-🚀 **Live App**: [https://cinemate-2025.web.app](https://cinemate-2025.web.app)
-
----
+## 🚀 **Live App**: <a href="https://cinemate-2025.web.app" target="_blank" rel="noopener noreferrer">Cinemate 2025</a>
 
 ## 📌 Table of Contents
 
@@ -168,7 +166,3 @@ Planned improvements:
 Pull requests are welcome! If you have ideas or improvements, please open an issue first to discuss your proposal.
 
 ---
-
-## 📄 License
-
-This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for details.
