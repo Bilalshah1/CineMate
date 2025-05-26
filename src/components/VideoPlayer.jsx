@@ -84,7 +84,6 @@ function VideoPlayer({ videoUrl }) {
   ];
 
 
-  // Grok
   useEffect(() => {
     // Reset player state when videoId changes
     setPlayer(null);
