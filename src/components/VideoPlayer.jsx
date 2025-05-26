@@ -188,7 +188,6 @@ function VideoPlayer({ videoUrl }) {
   }, [isFullscreen]);
 
 
-  // Grok
   const initializePlayer = () => {
     const playerHeight = '100%';
     const playerWidth = '100%';

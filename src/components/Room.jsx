@@ -41,7 +41,6 @@ function Room() {
   const [memberUsers, setMemberUsers] = useState([]);
   
 
-  // Grok
   useEffect(() => {
     if (!user) return;
 
@@ -124,7 +123,6 @@ function Room() {
   };
 
 
-  // Grok
   const handleVideoUrlChange = async (e) => {
     const newUrl = e.target.value.trim();
     setVideoUrl(newUrl);
